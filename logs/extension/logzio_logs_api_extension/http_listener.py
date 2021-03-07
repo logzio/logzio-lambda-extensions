@@ -73,7 +73,7 @@ def serve(started_event, server, logger):
 
 
 def get_logger():
-    log_level = os.getenv("LOG_LEVEL", "INFO")
+    log_level = os.getenv("LOG_LEVEL", "INFO").upper()
     # validate entered value, fallback to INFO
     if log_level not in ["DEBUG", "INFO", "WARNING", "WARNING", "ERROR", "CRITICAL"]:
         log_level = "INFO"

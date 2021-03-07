@@ -40,6 +40,10 @@ Note:
     `chmod +x logs_api_http_extension.py`
 """
 
+MAX_BULK_SIZE_IN_BYTES = 10 * 1024 * 1024  # 10 MB
+# MAX_BULK_SIZE_IN_BYTES = 1024  # 1 KB - for testing
+MAX_LOG_SIZE_IN_BYTES = 500000
+
 
 class LogsAPIHTTPExtension():
     def __init__(self, agent_name, registration_body, subscription_body, logger):
@@ -65,7 +69,7 @@ class LogsAPIHTTPExtension():
         session = requests.Session()
         future_timeout = self.get_future_timeout()
         while True:
-            resp = self.extensions_api_client.next(self.agent_id)
+            # resp = self.extensions_api_client.next(self.agent_id)
             # Process the received batches if any.
             self.logger.debug(f"Current queue size: {self.queue.qsize()}")
             if not self.queue.empty():
@@ -75,7 +79,11 @@ class LogsAPIHTTPExtension():
                         batch = self.queue.get_nowait()
                         futures.append(executor.submit(self.parse_and_send, batch, session))
                     for future in concurrent.futures.as_completed(futures, timeout=future_timeout):
-                        self.logger.debug(f"Batch done with code: {future.result()}")
+                        is_batch_successful = future.result()
+                        if is_batch_successful:
+                            self.logger.info("Batch sent without errors")
+                        else:
+                            self.logger.warning("Some errors occurred while sending batch")
             resp = self.extensions_api_client.next(self.agent_id)
 
     def get_future_timeout(self):
@@ -90,35 +98,112 @@ class LogsAPIHTTPExtension():
                 timeout = default_timeout
             return timeout
         except Exception as e:
-            self.logger.warning(f"Error occurred while getting THREAD_TIMEOUT: {e}\nReverting to default value {default_timeout}s")
+            self.logger.warning(
+                f"Error occurred while getting THREAD_TIMEOUT: {e}\nReverting to default value {default_timeout}s")
             return default_timeout
 
     def parse_and_send(self, batch, session):
         self.logger.debug(f"batch: {batch}")
-        request_data = self.parse_batch(batch)
-        return self.send_batch_to_logzio(request_data, session)
+        send_timeout = 5  # seconds
+        error_occurred = False
+        bulks = self.parse_batch(batch)
+        bulks_futures = []
+        with concurrent.futures.ThreadPoolExecutor(max_workers=len(bulks)) as executor:
+            for bulk in bulks:
+                bulks_futures.append(executor.submit(self.send_batch_to_logzio, bulk, session))
+            for future in concurrent.futures.as_completed(bulks_futures, timeout=send_timeout):
+                status_code, start_index, end_index = future.result()
+                if status_code != 200:
+                    self.logger.debug(f"Error occurred for batch: batch start index: {start_index}, batch end index: {end_index}")
+                    error_occurred = True
+                    # Bad request
+                    if status_code == 400:
+                        self.logger.error(f"Logz.io listener returned {status_code}.")
+                        # TODO
+                    # In the following cases, we return the batch to the queue to try sending it again
+                    elif status_code == 401:
+                        msg = f"Logz.io listener returned {status_code}. The token query string parameter is missing " \
+                              f"or not valid. Make sure you’re using the right account token. "
+                        self.return_batch_to_queue(batch, msg, start_index, end_index)
+                    elif status_code == 500:
+                        msg = f"Logz.io listener returned {status_code}. Returning batch to queue."
+                        self.return_batch_to_queue(batch, msg, start_index, end_index)
+                    else:
+                        self.logger.error(f"Logz.io listener returned {status_code}. Batch will not be "
+                                          f"returned to queue. Logs in the batch may be dropped.")
+                else:
+                    self.logger.info("Bulk sent successfully to Logz.io!")
+        # return self.send_batch_to_logzio(bulks, session)
+        return not error_occurred
+
+    def return_batch_to_queue(self, batch, msg, start, end):
+        return_batch = batch[start:end]
+        self.logger.error(msg)
+        if start == end:
+            return_batch = [batch[start]]
+        self.logger.debug(f"Returning part of batch ({start}, {end}): {return_batch}")  # DELETE WHEN DONE
+        self.logger.debug(f"queue before return of error: {list(self.queue.queue)}")  # DELETE WHEN DONE
+        self.queue.put(return_batch)
+        self.logger.debug(f"queue after return of error: {list(self.queue.queue)}") # DELETE WHEN DONE
 
     def parse_batch(self, batch):
         # parse batch to a logz.io format
-        request_data = ""
-        for log in batch:
-            separator = "\n"
-            # drop logs that contain only whitespace
-            if log["record"] == 1 and log["record"].isspace():
-                self.logger.debug("Dropping new line log")
-                continue
-            new_log = {"@timestamp": log["time"], "type": "logs-lambda-extension-python",
-                       "lambda.log.type": log["type"]}
+        batch_is_done = False
+        current_batch = batch
+        bulks = []
+        self.logger.debug("Before big loop") # DELETE WHEN DONE
+        while not batch_is_done:
+            request_data = ""
+            bulk_start_index = batch.index(current_batch[0])
+            self.logger.debug(f"Current batch: {current_batch}") # DELETE WHEN DONE
+            self.logger.debug(f"Current batch size: {sys.getsizeof(current_batch)}") # DELETE WHEN DONE
+            for log in current_batch:
+                separator = "\n"
+                self.logger.debug(f"Current log: {log}") # DELETE WHEN DONE
+                if log is current_batch[-1]:
+                    separator = ""
+                new_log_line = self.parse_log(log, separator)
+                if new_log_line is None:
+                    continue
+                size_of_new_line = sys.getsizeof(new_log_line)
+                self.logger.debug(f"log size: {size_of_new_line}")  # DELETE WHEN DONE
+                if size_of_new_line >= MAX_LOG_SIZE_IN_BYTES:
+                    self.logger.warning(f"Log line: {new_log_line} size ({size_of_new_line} bytes) is larger than "
+                                        f"allowed. Dropping log.")
+                    continue
+                if sys.getsizeof(request_data) + size_of_new_line <= MAX_BULK_SIZE_IN_BYTES:
+                    self.logger.debug("New log line does not exceeds max limit. adding to bulk") # DELETE WHEN DONE
+                    request_data = request_data + new_log_line
+                    self.logger.debug(f"current request_data: {request_data}") # DELETE WHEN DONE
+                    if log == current_batch[-1]:
+                        self.logger.debug("Finished with batch")
+                        bulks.append({"bulk": request_data, "start_index_in_batch": bulk_start_index,
+                                      "end_index_in_batch": batch.index(log)})
+                        batch_is_done = True
+                else:
+                    # if request_data exceeded MAX_BULK_SIZE_IN_BYTES we'll need to split batch into bulks
+                    self.logger.info("Batch exceeds allowed bulk size. Breaking batch to several bulks to send to "
+                                     "Logz.io")
+                    bulks.append({"bulk": request_data, "start_index_in_batch": bulk_start_index,
+                                  "end_index_in_batch": batch.index(log) - 1})
+                    current_batch = batch[batch.index(log):]
+                    break
+        return bulks
 
-            if type(log["record"]) is str:
-                new_log["message"] = log["record"]
-            else:
-                for key, value in log["record"].items():
-                    new_log["lambda.log.{}".format(key)] = value
-            if log is batch[-1]:
-                separator = ""
-            request_data = f"{request_data}{json.dumps(new_log)}{separator}"
-        return request_data
+    def parse_log(self, log, separator):
+        # drop logs that contain only whitespace
+        if log["record"] == 1 and log["record"].isspace():
+            self.logger.debug("Dropping new line log")
+            return None
+        new_log = {"@timestamp": log["time"], "type": "logs-lambda-extension-python",
+                   "lambda.log.type": log["type"]}
+
+        if type(log["record"]) is str:
+            new_log["message"] = log["record"]
+        else:
+            for key, value in log["record"].items():
+                new_log["lambda.log.{}".format(key)] = value
+        return f"{json.dumps(new_log)}{separator}"
 
     def get_logzio_listener(self):
         # Prioritize custom listener, if exists
@@ -131,25 +216,14 @@ class LogsAPIHTTPExtension():
             return base_listener
         return base_listener.replace("listener", f"listener-{region}")
 
-    def send_batch_to_logzio(self, request_data, session):
+    def send_batch_to_logzio(self, bulk_obj, session):
         try:
             self.logger.info("Preparing to send logz")
             url = "{}/?token={}".format(self.logzio_listener, self.logzio_token)
-            res = session.post(url=url, data=request_data)
-            # req = urllib.request.Request(url)
-            # req.method = 'POST'
-            # req.add_header("Content-Type", "application/json")
-            # req.data = request_data.encode("utf-8")
-            # print("Request ready, trying to send")
-            # res = urllib.request.urlopen(req)
-            # if res.status != 200:
-            #     print(f"Error sending logs to Logz.io: {res.status} {res.read()}")
-            # else:
-            #     print("Sent batch successfully")
-            # return res.status
+            res = session.post(url=url, data=bulk_obj["bulk"])
             if res.status_code != 200:
                 self.logger.error(f"Error sending logs to Logz.io: {res.status_code} {res.text}")
-            return res.status_code
+            return res.status_code, bulk_obj["start_index_in_batch"], bulk_obj["end_index_in_batch"]
         except urllib.error.HTTPError as e:
             body = e.read().decode()
             self.logger.error(f"Error occurred while sending batch to Logz.io. Response from Logz.io: {body}")
