@@ -41,7 +41,6 @@ Note:
 """
 
 MAX_BULK_SIZE_IN_BYTES = 10 * 1024 * 1024  # 10 MB
-# MAX_BULK_SIZE_IN_BYTES = 1024  # 1 KB - for testing
 MAX_LOG_SIZE_IN_BYTES = 500000
 
 
@@ -141,40 +140,31 @@ class LogsAPIHTTPExtension():
         self.logger.error(msg)
         if start == end:
             return_batch = [batch[start]]
-        self.logger.debug(f"Returning part of batch ({start}, {end}): {return_batch}")  # DELETE WHEN DONE
-        self.logger.debug(f"queue before return of error: {list(self.queue.queue)}")  # DELETE WHEN DONE
+        self.logger.debug(f"Returning part of batch ({start}, {end}): {return_batch}")
         self.queue.put(return_batch)
-        self.logger.debug(f"queue after return of error: {list(self.queue.queue)}") # DELETE WHEN DONE
 
     def parse_batch(self, batch):
         # parse batch to a logz.io format
         batch_is_done = False
         current_batch = batch
         bulks = []
-        self.logger.debug("Before big loop") # DELETE WHEN DONE
         while not batch_is_done:
             request_data = ""
             bulk_start_index = batch.index(current_batch[0])
-            self.logger.debug(f"Current batch: {current_batch}") # DELETE WHEN DONE
-            self.logger.debug(f"Current batch size: {sys.getsizeof(current_batch)}") # DELETE WHEN DONE
             for log in current_batch:
                 separator = "\n"
-                self.logger.debug(f"Current log: {log}") # DELETE WHEN DONE
                 if log is current_batch[-1]:
                     separator = ""
                 new_log_line = self.parse_log(log, separator)
                 if new_log_line is None:
                     continue
                 size_of_new_line = sys.getsizeof(new_log_line)
-                self.logger.debug(f"log size: {size_of_new_line}")  # DELETE WHEN DONE
                 if size_of_new_line >= MAX_LOG_SIZE_IN_BYTES:
                     self.logger.warning(f"Log line: {new_log_line} size ({size_of_new_line} bytes) is larger than "
                                         f"allowed. Dropping log.")
                     continue
                 if sys.getsizeof(request_data) + size_of_new_line <= MAX_BULK_SIZE_IN_BYTES:
-                    self.logger.debug("New log line does not exceeds max limit. adding to bulk") # DELETE WHEN DONE
                     request_data = request_data + new_log_line
-                    self.logger.debug(f"current request_data: {request_data}") # DELETE WHEN DONE
                     if log == current_batch[-1]:
                         self.logger.debug("Finished with batch")
                         bulks.append({"bulk": request_data, "start_index_in_batch": bulk_start_index,
@@ -246,31 +236,29 @@ MAX_ITEMS = 10000  # Maximum number of events that would be buffered in memory.
 
 def main():
     logger = get_logger()
-    subscription_body = get_subscription_body(logger)
+    subscription_body = get_subscription_body()
     logger.debug(f"Starting Extensions {_REGISTRATION_BODY} {subscription_body}")
     # Note: Agent name has to be file name to register as an external extension
     ext = LogsAPIHTTPExtension(os.path.basename(__file__), _REGISTRATION_BODY, subscription_body, logger)
     ext.run_forever()
 
 
-def get_lambda_log_types(logger):
+def get_lambda_log_types():
     types = ["function"]
     if os.getenv("ENABLE_PLATFORM_LOGS", "false") == "true":
-        logger.debug("Enabling platform logs")
         types.append("platform")
     if os.getenv("ENABLE_EXTENSION_LOGS", "false") == "true":
-        logger.debug("Enabling extension logs")
         types.append("extension")
     return types
 
 
-def get_subscription_body(logger):
+def get_subscription_body():
     subscription_body = {
         "destination": {
             "protocol": "HTTP",
             "URI": f"http://sandbox:{RECEIVER_PORT}",
         },
-        "types": get_lambda_log_types(logger),
+        "types": get_lambda_log_types(),
         "buffering": {
             "timeoutMs": TIMEOUT_MS,
             "maxBytes": MAX_BYTES,
@@ -282,7 +270,7 @@ def get_subscription_body(logger):
 
 
 def get_logger():
-    log_level = os.getenv("LOG_LEVEL", "INFO").upper()
+    log_level = os.getenv("LOGS_EXT_LOG_LEVEL", "INFO").upper()
     # validate entered value, fallback to INFO
     if log_level not in ["DEBUG", "INFO", "WARNING", "WARNING", "ERROR", "CRITICAL"]:
         log_level = "INFO"
