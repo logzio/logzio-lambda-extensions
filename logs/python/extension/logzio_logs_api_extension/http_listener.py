@@ -8,9 +8,6 @@ import sys
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from threading import Event, Thread
 
-""" Demonstrates code to set up an HTTP listener and receive log events
-"""
-
 RECEIVER_IP = "0.0.0.0"
 RECEIVER_PORT = 4243
 
@@ -73,7 +70,7 @@ def serve(started_event, server, logger):
 
 
 def get_logger():
-    log_level = os.getenv("LOG_LEVEL", "INFO").upper()
+    log_level = os.getenv("LOGS_EXT_LOG_LEVEL", "INFO").upper()
     # validate entered value, fallback to INFO
     if log_level not in ["DEBUG", "INFO", "WARNING", "WARNING", "ERROR", "CRITICAL"]:
         log_level = "INFO"

@@ -7,9 +7,6 @@ import os
 import sys
 import urllib.request
 
-""" Demonstrates code to register your extension as an extension.
-"""
-
 LAMBDA_AGENT_NAME_HEADER_KEY = "Lambda-Extension-Name"
 LAMBDA_AGENT_IDENTIFIER_HEADER_KEY = "Lambda-Extension-Identifier"
 
@@ -64,7 +61,7 @@ class ExtensionsAPIClient():
             raise Exception(f"Failed to get /event/next from ExtensionsAPIClient: {e}") from e
 
     def get_logger(self):
-        log_level = os.getenv("LOG_LEVEL", "INFO").upper()
+        log_level = os.getenv("LOGS_EXT_LOG_LEVEL", "INFO").upper()
         # validate entered value, fallback to INFO
         if log_level not in ["DEBUG", "INFO", "WARNING", "WARNING", "ERROR", "CRITICAL"]:
             log_level = "INFO"
