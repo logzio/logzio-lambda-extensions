@@ -22,6 +22,8 @@ from queue import Queue
 
 MAX_BULK_SIZE_IN_BYTES = 10 * 1024 * 1024  # 10 MB
 MAX_LOG_SIZE_IN_BYTES = 500000
+
+SHIPPER_NAME = "logs-lambda-extension"
 EXTENSION_VERSION = "0.0.1"
 
 class LogsAPIHTTPExtension():
@@ -206,7 +208,7 @@ class LogsAPIHTTPExtension():
         session = requests.Session()
         session.headers["content-encoding"] = "gzip"
         session.headers["content-type"] = "application/json"
-        session.headers["ver"] = EXTENSION_VERSION
+        session.headers["logzio-shipper"] = f"{SHIPPER_NAME}/v{EXTENSION_VERSION}/0,0"
         return session
 
 
