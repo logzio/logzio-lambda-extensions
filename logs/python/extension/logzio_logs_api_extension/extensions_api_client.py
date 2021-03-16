@@ -68,7 +68,7 @@ class ExtensionsAPIClient():
         logger = logging.getLogger(__name__)
         logger.setLevel(logging.getLevelName(log_level))
         handler = logging.StreamHandler()
-        formatter = logging.Formatter('%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s')
+        formatter = logging.Formatter('%(levelname)s %(asctime)s %(module)s %(thread)d %(message)s')
         handler.setFormatter(formatter)
         logger.addHandler(handler)
         return logger

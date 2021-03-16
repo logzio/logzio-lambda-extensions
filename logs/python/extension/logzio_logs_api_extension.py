@@ -99,18 +99,21 @@ class LogsAPIHTTPExtension():
                     # Bad request
                     if status_code == 400:
                         self.logger.error(f"Logz.io listener returned {status_code}.")
-                        # TODO
+                        corrupted_batch = batch[start_index:end_index]
+                        if start_index == end_index:
+                            corrupted_batch = batch[start_index]
+                        self.logger.error(f"{corrupted_batch} caused 400 response")
                     # In the following cases, we return the batch to the queue to try sending it again
-                    elif status_code == 401:
-                        msg = f"Logz.io listener returned {status_code}. The token query string parameter is missing " \
-                              f"or not valid. Make sure you’re using the right account token. "
-                        self.return_batch_to_queue(batch, msg, start_index, end_index)
-                    elif status_code == 500:
-                        msg = f"Logz.io listener returned {status_code}. Returning batch to queue."
-                        self.return_batch_to_queue(batch, msg, start_index, end_index)
                     else:
-                        self.logger.error(f"Logz.io listener returned {status_code}. Batch will not be "
-                                          f"returned to queue. Logs in the batch may be dropped.")
+                        msg = f"Logz.io listener returned {status_code}. Batch will not be returned to queue. " \
+                                  f"Logs in the batch may be dropped."
+                        if status_code == 401:
+                            msg = f"Logz.io listener returned {status_code}. The token query string parameter is " \
+                                  f"missing or not valid. Make sure you’re using the right account token."
+                        elif status_code == 500:
+                            msg = f"Logz.io listener returned {status_code}. Returning batch to queue."
+
+                        self.return_batch_to_queue(batch, msg, start_index, end_index)
                 else:
                     self.logger.info("Bulk sent successfully to Logz.io!")
         return not error_occurred
@@ -267,7 +270,7 @@ def get_logger():
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.getLevelName(log_level))
     handler = logging.StreamHandler()
-    formatter = logging.Formatter('%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s')
+    formatter = logging.Formatter('%(levelname)s %(asctime)s %(module)s %(thread)d %(message)s')
     handler.setFormatter(formatter)
     logger.addHandler(handler)
     return logger
