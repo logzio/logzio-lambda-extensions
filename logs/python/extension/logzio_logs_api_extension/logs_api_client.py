@@ -7,9 +7,6 @@ import os
 import sys
 import urllib.request
 
-""" Demonstrates code to call the Logs API to subscribe to log events
-"""
-
 LAMBDA_AGENT_IDENTIFIER_HEADER_KEY = "Lambda-Extension-Identifier"
 
 class LogsAPIClient:
