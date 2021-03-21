@@ -22,6 +22,7 @@ from queue import Queue
 
 MAX_BULK_SIZE_IN_BYTES = 10 * 1024 * 1024  # 10 MB
 MAX_LOG_SIZE_IN_BYTES = 500000
+TIMEOUT = int(os.getenv("THREAD_TIMEOUT", 5))  # seconds
 
 SHIPPER_NAME = "logs-lambda-extension"
 EXTENSION_VERSION = "0.0.1"
@@ -48,7 +49,6 @@ class LogsAPIHTTPExtension():
         self.logger.debug(f"Serving LogzioLogsAPIHTTPExternalExtension {self.agent_name}")
         self.logger.debug("Creating new Session for this run")
         session = self.create_session()
-        future_timeout = self.get_future_timeout()
         while True:
             # Process the received batches if any.
             self.logger.debug(f"Current queue size: {self.queue.qsize()}")
@@ -58,7 +58,7 @@ class LogsAPIHTTPExtension():
                     while not self.queue.empty():
                         batch = self.queue.get_nowait()
                         futures.append(executor.submit(self.parse_and_send, batch, session))
-                    for future in concurrent.futures.as_completed(futures, timeout=future_timeout):
+                    for future in concurrent.futures.as_completed(futures, timeout=TIMEOUT):
                         is_batch_successful = future.result()
                         if is_batch_successful:
                             self.logger.info("Batch sent without errors")
@@ -66,25 +66,9 @@ class LogsAPIHTTPExtension():
                             self.logger.warning("Some errors occurred while sending batch")
             resp = self.extensions_api_client.next(self.agent_id)
 
-    def get_future_timeout(self):
-        if "THREAD_TIMEOUT" not in os.environ:
-            self.logger.warning("THREAD_TIMEOUT not specified. No timeout will be set for threads.")
-            return None
-        try:
-            default_timeout = 5
-            timeout = int(os.getenv("THREAD_TIMEOUT"))
-            if timeout < 0:
-                self.logger.warning(f"Invalid THREAD_TIMEOUT value, reverting to default value: {default_timeout}s")
-                timeout = default_timeout
-            return timeout
-        except Exception as e:
-            self.logger.warning(
-                f"Error occurred while getting THREAD_TIMEOUT: {e}\nReverting to default value {default_timeout}s")
-            return default_timeout
-
     def parse_and_send(self, batch, session):
         self.logger.debug(f"batch: {batch}")
-        send_timeout = 5  # seconds
+        send_timeout = TIMEOUT
         error_occurred = False
         bulks = self.parse_batch(batch)
         bulks_futures = []
