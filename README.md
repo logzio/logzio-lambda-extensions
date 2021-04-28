@@ -6,5 +6,5 @@ The Logz.io Lambda extension for logs, uses the AWS Extensions API and [AWS Logs
 
 This repo is based on the [AWS lambda extensions sample](https://github.com/aws-samples/aws-lambda-extensions/tree/main/python-example-logs-api-extension/extensions).
 
-## Available extensions - 
+## Available extensions
 * [Logs](https://github.com/logzio/logzio-lambda-extensions/tree/main/logs/python).
