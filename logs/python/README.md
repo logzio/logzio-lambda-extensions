@@ -14,10 +14,10 @@ This repo is based on the [AWS lambda extensions sample](https://github.com/aws-
 ### Extension deployment options
 
 You can deploy the extension via:
-* [AWS CLI]().
-* [AWS Management Console]().
+* [AWS CLI](https://github.com/logzio/logzio-lambda-extensions/tree/main/logs/python#deploying-logzio-logs-extension-via-the-aws-cli).
+* [AWS Management Console](https://github.com/logzio/logzio-lambda-extensions/tree/main/logs/python#deploying-logzio-log-extensions-via-the-aws-management-console).
 
-#### Deploying Logz.io logs extension via the AWS CLI
+### Deploying Logz.io logs extension via the AWS CLI
 
 ##### Deploy the extension, dependencies and configuration
 
@@ -34,12 +34,11 @@ aws lambda update-function-configuration \
 
 **Note:** this command overwrites the existing function configuration. If you already have your own layers and environment variables for your function, list them as well.
 
-| Placeholder | Description | Required/Default|
-|---|---|---|
-| `<<FUNCTION-NAME>>` |  Name of the Lambda Function you want to monitor. |Required|
-| `<<LAYERS>>` | A space-separated list of function layers to add to the function's execution environment. Specify each layer by its ARN, including the version.  For the ARN, see the [**Lambda extension versions** table](). You may need to add another layer that has the extensions dependencies.  For the libraries that your extension requires, see the [**Lambda extensions dependencies** table](). If your function doesn't already have those libraries under `/opt/python`, you'll need to add the dependencies as a layer, too.|  |
-| `<<ENV-VARS>>`  | Key-value pairs containing environment variables that are accessible from function code during execution. Should appear in the following format: `KeyName1=string,KeyName2=string`.  For a list of all the environment variables for the extension, see the [**Lambda environment variables** table]().|  |
-
+| Placeholder | Description |
+|---|---|
+| `<<FUNCTION-NAME>>` |  Name of the Lambda Function you want to monitor. |
+| `<<LAYERS>>` | A space-separated list of function layers to add to the function's execution environment. Specify each layer by its ARN, including the version.  For the ARN, see the [**Lambda extension versions** table](https://github.com/logzio/logzio-lambda-extensions/tree/main/logs/python#lambda-extension-versions). You may need to add another layer that has the extensions dependencies.  For the libraries that your extension requires, see the [**Lambda extensions dependencies** table](https://github.com/logzio/logzio-lambda-extensions/tree/main/logs/python#arn-for-extension-dependencies). If your function doesn't already have those libraries under `/opt/python`, you'll need to add the dependencies as a layer, too.|
+| `<<ENV-VARS>>`  | Key-value pairs containing environment variables that are accessible from function code during execution. Should appear in the following format: `KeyName1=string,KeyName2=string`.  For a list of all the environment variables for the extension, see the [**Lambda environment variables** table](https://github.com/logzio/logzio-lambda-extensions/tree/main/logs/python#environment-variables).|
 ##### Run the function
 
 Use the following command. It may take more than one run of the function for the logs to start shipping to your Logz.io account.
@@ -67,7 +66,7 @@ aws lambda update-function-configuration \
 
 **NOTE:** This command overwrites the existing function configuration. If you already have your own layers and environment variables for your function, include them in the list.
 
-#### Deploying Logz.io log extensions via the AWS Management Console
+### Deploying Logz.io log extensions via the AWS Management Console
 
 ##### Add the extension to your Lambda Function
 
@@ -77,20 +76,20 @@ aws lambda update-function-configuration \
 2. In the page for the function, scroll down to the `Layers` section and choose `Add Layer`.
 ![Add layer](https://dytvr9ot2sszz.cloudfront.net/logz-docs/lambda_extensions/lambda-x_1-2.jpg)
 
-3. Select the `Specify an ARN` option, then choose the ARN of the extension with the region code that matches your Lambda Function region from the [**Lambda extension versions** table](), and click the `Add` button.
+3. Select the `Specify an ARN` option, then choose the ARN of the extension with the region code that matches your Lambda Function region from the [**Lambda extension versions** table](https://github.com/logzio/logzio-lambda-extensions/tree/main/logs/python#lambda-extension-versions), and click the `Add` button.
 ![Add ARN extension](https://dytvr9ot2sszz.cloudfront.net/logz-docs/lambda_extensions/lambda-x_1-3.jpg)
 
-4. *Optional*. This step adds the python libraries the extension needs to run. Refer to the [**ARN for extension dependencies** table](): If your Lambda function already has those libraries under `/opt/python`, you can skip this step. If not, you'll need it for the extension to run.
+4. *Optional*. This step adds the python libraries the extension needs to run. Refer to the [**ARN for extension dependencies** table](https://github.com/logzio/logzio-lambda-extensions/tree/main/logs/python#arn-for-extension-dependencies): If your Lambda function already has those libraries under `/opt/python`, you can skip this step. If not, you'll need it for the extension to run.
 
     a. Repeat step 2 to add another layer.
   
-    b. Select the `Specify an ARN` option, then select the ARN that's compatible with the extension version you chose from the [**Dependencies** table](), and paste it in the textbox. 
+    b. Select the `Specify an ARN` option, then select the ARN that's compatible with the extension version you chose from the [**Dependencies** table](https://github.com/logzio/logzio-lambda-extensions/tree/main/logs/python#arn-for-extension-dependencies), and paste it in the textbox. 
   
     c. Click `Add`.
 
 ##### Configure the extension parameters
 
-Add the environment variables to the function, according to the [**Environment variables** table]().
+Add the environment variables to the function, according to the [**Environment variables** table](https://github.com/logzio/logzio-lambda-extensions/tree/main/logs/python#environment-variables).
 
 ##### Run the function
 
