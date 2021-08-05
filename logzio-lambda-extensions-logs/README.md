@@ -137,3 +137,8 @@ Note: the dependencies will is deprecated.
 | Europe (Stockholm) | `eu-north-1` |
 
 **NOTE:** If your AWS region is not in the list, please reach out to Logz.io's support or open an issue in this repo.
+
+### Changelog:
+- **0.1.0**:
+    - **BREAKING CHANGES**: Written in Go, supports multiple runtimes. Compatible with the GA version of the Extensions API.
+- **0.0.1**: Initial release. Supports only python 3.7, python 3.8 runtimes. Compatible with the beta version of the Extensions API.
