@@ -6,7 +6,7 @@ The Logz.io Lambda extension for logs, uses the AWS Extensions API and [AWS Logs
 
 This repo is based on the [AWS lambda extensions sample](https://github.com/aws-samples/aws-lambda-extensions).
 
-This extension is written in Go, but can be run with pruntimes that support extensions](https://docs.aws.amazon.com/lambda/latest/dg/using-extensions.html).
+This extension is written in Go, but can be run with runtimes that support extensions](https://docs.aws.amazon.com/lambda/latest/dg/using-extensions.html).
 
 ### Prerequisites
 
