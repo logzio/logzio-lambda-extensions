@@ -1,21 +1,29 @@
-# Logzio-lambda-extensions
+# Logzio-lambda-extensions-logs
 
 Lambda extensions enable tools to integrate deeply into the Lambda execution environment to control and participate in Lambda’s lifecycle.
 To read more about Lambda Extensions, [click here](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-extensions-api.html).  
 The Logz.io Lambda extension for logs, uses the AWS Extensions API and [AWS Logs API](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-logs-api.html), and sends your Lambda Function Logs directly to your Logz.io account.
 
-This repo is based on the [AWS lambda extensions sample](https://github.com/aws-samples/aws-lambda-extensions/tree/main/python-example-logs-api-extension/extensions).
+This repo is based on the [AWS lambda extensions sample](https://github.com/aws-samples/aws-lambda-extensions).
+
+This extension is written in Go, but can be run with runtimes that support extensions](https://docs.aws.amazon.com/lambda/latest/dg/using-extensions.html).
 
 ### Prerequisites
 
-* Lambda function with supported runtime for extensions (`python 3.7`, `python 3.8`).
+* Lambda function with [supported runtime](https://docs.aws.amazon.com/lambda/latest/dg/using-extensions.html) for extensions.
 * AWS Lambda limitations: A function can use up to five layers at a time. The total unzipped size of the function and all layers cannot exceed the unzipped deployment package size limit of 250 MB.
+
+### Important notes:
+* If the extension won't have enough time to receive logs from AWS Logs API, it may send the logs in the next invocation of the Lambda function.
+So if you want that all the logs will be sent by the end of your function's run, you'll need to add at the end of your Lambda function code a sleep interval that will allow the extension enough time to do it's job.
+* Due to [Lambda's execution environment lifecycle](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-context.html), the extension is being invoked on two events - `INVOKE` and `SHUTDOWN`.
+That means that if your Lambda function goes into the `SHUTDOWN` phase, the extension will run and if there are logs in it's queue, it will send them.
 
 ### Extension deployment options
 
 You can deploy the extension via:
-* [AWS CLI](https://github.com/logzio/logzio-lambda-extensions/tree/main/logs/python#deploying-logzio-logs-extension-via-the-aws-cli).
-* [AWS Management Console](https://github.com/logzio/logzio-lambda-extensions/tree/main/logs/python#deploying-logzio-log-extensions-via-the-aws-management-console).
+* [AWS CLI](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#deploying-logzio-logs-extension-via-the-aws-cli).
+* [AWS Management Console](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#deploying-logzio-log-extensions-via-the-aws-management-console).
 
 ### Deploying Logz.io logs extension via the AWS CLI
 
@@ -37,8 +45,9 @@ aws lambda update-function-configuration \
 | Placeholder | Description |
 |---|---|
 | `<<FUNCTION-NAME>>` |  Name of the Lambda Function you want to monitor. |
-| `<<LAYERS>>` | A space-separated list of function layers to add to the function's execution environment. Specify each layer by its ARN, including the version.  For the ARN, see the [**Lambda extension versions** table](https://github.com/logzio/logzio-lambda-extensions/tree/main/logs/python#lambda-extension-versions). You may need to add another layer that has the extensions dependencies.  For the libraries that your extension requires, see the [**Lambda extensions dependencies** table](https://github.com/logzio/logzio-lambda-extensions/tree/main/logs/python#arn-for-extension-dependencies). If your function doesn't already have those libraries under `/opt/python`, you'll need to add the dependencies as a layer, too.|
-| `<<ENV-VARS>>`  | Key-value pairs containing environment variables that are accessible from function code during execution. Should appear in the following format: `KeyName1=string,KeyName2=string`.  For a list of all the environment variables for the extension, see the [**Lambda environment variables** table](https://github.com/logzio/logzio-lambda-extensions/tree/main/logs/python#environment-variables).|
+| `<<LAYERS>>` | A space-separated list of function layers to add to the function's execution environment. Specify each layer by its ARN, including the version.  For the ARN, see the [**Lambda extension versions** table](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#lambda-extension-versions). You may need to add another layer that has the extensions dependencies.
+| `<<ENV-VARS>>`  | Key-value pairs containing environment variables that are accessible from function code during execution. Should appear in the following format: `KeyName1=string,KeyName2=string`.  For a list of all the environment variables for the extension, see the [**Lambda environment variables** table](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#environment-variables).|
+
 ##### Run the function
 
 Use the following command. It may take more than one run of the function for the logs to start shipping to your Logz.io account.
@@ -76,20 +85,12 @@ aws lambda update-function-configuration \
 2. In the page for the function, scroll down to the `Layers` section and choose `Add Layer`.
 ![Add layer](https://dytvr9ot2sszz.cloudfront.net/logz-docs/lambda_extensions/lambda-x_1-2.jpg)
 
-3. Select the `Specify an ARN` option, then choose the ARN of the extension with the region code that matches your Lambda Function region from the [**Lambda extension versions** table](https://github.com/logzio/logzio-lambda-extensions/tree/main/logs/python#lambda-extension-versions), and click the `Add` button.
+3. Select the `Specify an ARN` option, then choose the ARN of the extension with the region code that matches your Lambda Function region from the [**Lambda extension versions** table](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#lambda-extension-versions), and click the `Add` button.
 ![Add ARN extension](https://dytvr9ot2sszz.cloudfront.net/logz-docs/lambda_extensions/lambda-x_1-3.jpg)
-
-4. *Optional*. This step adds the python libraries the extension needs to run. Refer to the [**ARN for extension dependencies** table](https://github.com/logzio/logzio-lambda-extensions/tree/main/logs/python#arn-for-extension-dependencies): If your Lambda function already has those libraries under `/opt/python`, you can skip this step. If not, you'll need it for the extension to run.
-
-    a. Repeat step 2 to add another layer.
-  
-    b. Select the `Specify an ARN` option, then select the ARN that's compatible with the extension version you chose from the [**Dependencies** table](https://github.com/logzio/logzio-lambda-extensions/tree/main/logs/python#arn-for-extension-dependencies), and paste it in the textbox. 
-  
-    c. Click `Add`.
 
 ##### Configure the extension parameters
 
-Add the environment variables to the function, according to the [**Environment variables** table](https://github.com/logzio/logzio-lambda-extensions/tree/main/logs/python#environment-variables).
+Add the environment variables to the function, according to the [**Environment variables** table](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#environment-variables).
 
 ##### Run the function
 
@@ -98,7 +99,6 @@ Run the function. It may take more than one run of the function for the logs to 
 #### Deleting the extension
 
 - To delete the **extension layer**: In your function page, go to the **layers** panel. Click `edit`, select the extension layer, and click `save`.
-- To delete the **extension dependencies layer**: In your function page, go to the **layers** panel, click `edit`, select the extension dependencies layer, and click `save`.
 - To delete the extension's **environment variables**: In your function page, select the `Configuration` tab, select `Environment variables`, click `edit`, and remove the variables that you added for the extension.
 
 ### Environment Variables
@@ -106,22 +106,20 @@ Run the function. It may take more than one run of the function for the logs to 
 | Name | Description |Required/Default|
 | --- | --- | --- |
 | `LOGZIO_LOGS_TOKEN` | Your Logz.io log shipping [token](https://app.logz.io/#/dashboard/settings/manage-tokens/data-shipping). | Required |
-| `LOGZIO_REGION` |  Two-letter region code, or blank for US. This determines your listener URL. You can find your region code in the [Regions and URLs table](https://docs.logz.io/user-guide/accounts/account-region.html#regions-and-urls). | Default: (left blank for US)|
-| `LOGS_EXT_LOG_LEVEL` |  Log level of the extension. Can be set to one of the following: `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`. |Default: `INFO` |
+| `LOGZIO_LISTENER` |  Your  Logz.io listener address, with port 8070 (http) or 8071 (https). For example, for example: `https://listener.logz.io:8071` | Required |
+| `LOGS_EXT_LOG_LEVEL` |  Log level of the extension. Can be set to one of the following: `debug`, `info`, `warn`, `error`, `fatal`, `panic`. |Default: `info` |
 | `ENABLE_EXTENSION_LOGS` |  Set to `true` if you wish the extension logs will be shipped to your Logz.io account. | Default: `false` |
 | `ENABLE_PLATFORM_LOGS` | The platform log captures runtime or execution environment errors. Set to `true` if you wish the platform logs will be shipped to your Logz.io account. | Default: `false` |
-| `THREAD_TIMEOUT` | Execution timeout for the threads that parse and send the logs. | Default: `5` (seconds)|
-| `LOGZIO_CUSTOM_LISTENER` | Use if you have a custom Logz.io listener endpoint). Will override `LOGZIO_REGION`. | Optional |
-
 
 ### Lambda extension versions
 
 | Version | Supported Runtimes | AWS ARN |
 | --- | --- | --- |
-| 0.0.1 | python 3.7, python 3.8 | `arn:aws:lambda:<<YOUR-AWS-REGION-CODE>>:486140753397:layer:LogzioLambdaExtensionLogs:1` |
+| 0.1.0| `.NET Core 3.1`, `Java 11`, `Java 8`, `Node.js 14.x`, `Node.js 12.x`, `Node.js 10.x`, `Python 3.8`, `Python 3.7`, `Ruby 2.7`, `Ruby 2.5`, `Custom runtime`| `arn:aws:lambda:<<YOUR-AWS-REGION-CODE>>:486140753397:layer:LogzioLambdaExtensionLogs:2` |
+| 0.0.1 | `Python 3.7`, `Python 3.8` | `arn:aws:lambda:<<YOUR-AWS-REGION-CODE>>:486140753397:layer:LogzioLambdaExtensionLogs:1` |
 
-### ARN for extension dependencies
-
+### ARN for extension dependencies - DEPRECATED
+Note: the dependencies will is deprecated.
 |Compatible with extension versions | Imports | AWS ARN |
 | --- | --- | --- |
 | 0.0.1 | `requests` | `arn:aws:lambda:<<YOUR-AWS-REGION-CODE>>:486140753397:layer:LogzioLambdaExtensionLogsLibs:1` |
@@ -139,3 +137,8 @@ Run the function. It may take more than one run of the function for the logs to 
 | Europe (Stockholm) | `eu-north-1` |
 
 **NOTE:** If your AWS region is not in the list, please reach out to Logz.io's support or open an issue in this repo.
+
+### Changelog:
+- **0.1.0**:
+    - **BREAKING CHANGES**: Written in Go, supports multiple runtimes. Compatible with the GA version of the Extensions API.
+- **0.0.1**: Initial release. Supports only python 3.7, python 3.8 runtimes. Compatible with the beta version of the Extensions API.
