@@ -1,4 +1,4 @@
-package logs_converter
+package utils
 
 const (
 	fldLogzioTimestamp = "@timestamp"

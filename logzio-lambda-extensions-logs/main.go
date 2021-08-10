@@ -16,8 +16,6 @@ import (
 	"path"
 	"strings"
 	"syscall"
-
-	converter "logzio-lambda-extensions-logs/logs_converter"
 )
 
 // INITIAL_QUEUE_SIZE is the initial size set for the synchronous logQueue
@@ -147,7 +145,7 @@ func processBatch(batchStr string, logger *log.Entry) (string, error) {
 	logger.Debugf("Batch contains %d logs", len(batch))
 	var outputBuilder strings.Builder
 	for index, log := range batch {
-		logzioLog := converter.ConvertLambdaLogToLogzioLog(log)
+		logzioLog := utils.ConvertLambdaLogToLogzioLog(log)
 		if index > 0 {
 			outputBuilder.WriteString("\n")
 		}
