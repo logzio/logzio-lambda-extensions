@@ -52,7 +52,7 @@ func (s *LogsApiHttpListener) Start() (bool, error) {
 	s.httpServer = &http.Server{Addr: address}
 	http.HandleFunc("/", s.http_handler)
 	go func() {
-		logger.Infof("Serving agent on %s", address)
+		logger.Debugf("Serving agent on %s", address)
 		err := s.httpServer.ListenAndServe()
 		if err != http.ErrServerClosed {
 			logger.Errorf("Unexpected stop on Http Server: %v", err)

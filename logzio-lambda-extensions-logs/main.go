@@ -34,7 +34,7 @@ func main() {
 	signal.Notify(sigs, syscall.SIGTERM, syscall.SIGINT)
 	go func() {
 		s := <-sigs
-		logger.Info(printPrefix, "Received", s)
+		logger.Debug(printPrefix, "Received", s)
 		logger.Info(printPrefix, "Exiting")
 		cancel()
 	}()
