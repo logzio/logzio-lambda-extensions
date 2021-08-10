@@ -22,8 +22,8 @@ That means that if your Lambda function goes into the `SHUTDOWN` phase, the exte
 ### Extension deployment options
 
 You can deploy the extension via:
-* [AWS CLI](<<TODO>>).
-* [AWS Management Console](<<TODO>>).
+* [AWS CLI](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#deploying-logzio-logs-extension-via-the-aws-cli).
+* [AWS Management Console](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#deploying-logzio-log-extensions-via-the-aws-management-console).
 
 ### Deploying Logz.io logs extension via the AWS CLI
 
@@ -45,8 +45,8 @@ aws lambda update-function-configuration \
 | Placeholder | Description |
 |---|---|
 | `<<FUNCTION-NAME>>` |  Name of the Lambda Function you want to monitor. |
-| `<<LAYERS>>` | A space-separated list of function layers to add to the function's execution environment. Specify each layer by its ARN, including the version.  For the ARN, see the [**Lambda extension versions** table](<<TODO>>). You may need to add another layer that has the extensions dependencies.
-| `<<ENV-VARS>>`  | Key-value pairs containing environment variables that are accessible from function code during execution. Should appear in the following format: `KeyName1=string,KeyName2=string`.  For a list of all the environment variables for the extension, see the [**Lambda environment variables** table](<<TODO>>).|
+| `<<LAYERS>>` | A space-separated list of function layers to add to the function's execution environment. Specify each layer by its ARN, including the version.  For the ARN, see the [**Lambda extension versions** table](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#lambda-extension-versions). You may need to add another layer that has the extensions dependencies.
+| `<<ENV-VARS>>`  | Key-value pairs containing environment variables that are accessible from function code during execution. Should appear in the following format: `KeyName1=string,KeyName2=string`.  For a list of all the environment variables for the extension, see the [**Lambda environment variables** table](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#environment-variables).|
 
 ##### Run the function
 
@@ -85,12 +85,12 @@ aws lambda update-function-configuration \
 2. In the page for the function, scroll down to the `Layers` section and choose `Add Layer`.
 ![Add layer](https://dytvr9ot2sszz.cloudfront.net/logz-docs/lambda_extensions/lambda-x_1-2.jpg)
 
-3. Select the `Specify an ARN` option, then choose the ARN of the extension with the region code that matches your Lambda Function region from the [**Lambda extension versions** table](https://github.com/logzio/logzio-lambda-extensions/tree/main/logs/python#lambda-extension-versions), and click the `Add` button.
+3. Select the `Specify an ARN` option, then choose the ARN of the extension with the region code that matches your Lambda Function region from the [**Lambda extension versions** table](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#lambda-extension-versions), and click the `Add` button.
 ![Add ARN extension](https://dytvr9ot2sszz.cloudfront.net/logz-docs/lambda_extensions/lambda-x_1-3.jpg)
 
 ##### Configure the extension parameters
 
-Add the environment variables to the function, according to the [**Environment variables** table](<<TODO>>).
+Add the environment variables to the function, according to the [**Environment variables** table](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#environment-variables).
 
 ##### Run the function
 
@@ -115,8 +115,8 @@ Run the function. It may take more than one run of the function for the logs to 
 
 | Version | Supported Runtimes | AWS ARN |
 | --- | --- | --- |
-| 0.1.0| TODO | TODO |
-| 0.0.1 | python 3.7, python 3.8 | `arn:aws:lambda:<<YOUR-AWS-REGION-CODE>>:486140753397:layer:LogzioLambdaExtensionLogs:1` |
+| 0.1.0| `.NET Core 3.1`, `Java 11`, `Java 8`, `Node.js 14.x`, `Node.js 12.x`, `Node.js 10.x`, `Python 3.8`, `Python 3.7`, `Ruby 2.7`, `Ruby 2.5`| `arn:aws:lambda:<<YOUR-AWS-REGION-CODE>>:486140753397:layer:LogzioLambdaExtensionLogs:2` |
+| 0.0.1 | `Python 3.7`, `Python 3.8` | `arn:aws:lambda:<<YOUR-AWS-REGION-CODE>>:486140753397:layer:LogzioLambdaExtensionLogs:1` |
 
 ### ARN for extension dependencies - DEPRECATED
 Note: the dependencies will is deprecated.
