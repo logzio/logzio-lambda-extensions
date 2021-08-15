@@ -120,15 +120,16 @@ Run the function. It may take more than one run of the function for the logs to 
 
 ### Available AWS regions
 
-| Region Name | Region Code |
-| --- | ---- |
-| US East (N. Virginia) | `us-east-1` |
-| US East (Ohio) | `us-east-2` |
-| US West (N. California) | `us-west-1` |
-| US West (Oregon) | `us-west-2` |
-| Europe (Frankfurt) | `eu-central-1` |
-| Europe (Ireland) | `eu-west-1` |
-| Europe (Stockholm) | `eu-north-1` |
+| Region Name | Region Code | Notes |
+| --- | ---- | --- |
+| US East (N. Virginia) | `us-east-1` | - |
+| US East (Ohio) | `us-east-2` | - |
+| US West (N. California) | `us-west-1` | - |
+| US West (Oregon) | `us-west-2` | - |
+| Europe (Frankfurt) | `eu-central-1`| - |
+| Europe (Ireland) | `eu-west-1` | - |
+| Europe (Stockholm) | `eu-north-1` | - |
+| Asia Pacific (Sydney) | `ap-southeast-2` | Available from v0.1.0 |
 
 **NOTE:** If your AWS region is not in the list, please reach out to Logz.io's support or open an issue in this repo.
 
