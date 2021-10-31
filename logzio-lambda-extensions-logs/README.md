@@ -130,11 +130,12 @@ Run the function. It may take more than one run of the function for the logs to 
 | Europe (Ireland) | `eu-west-1` | - |
 | Europe (Stockholm) | `eu-north-1` | - |
 | Asia Pacific (Sydney) | `ap-southeast-2` | Available from v0.1.0 |
+| Canada (Central) ) | `ca-central-1` | Available from v0.1.0 |
 
 **NOTE:** If your AWS region is not in the list, please reach out to Logz.io's support or open an issue in this repo.
 
 ### ARN for extension dependencies - DEPRECATED
-Note: the dependencies will is deprecated.
+Note: the dependencies layer is deprecated.
 |Compatible with extension versions | Imports | AWS ARN |
 | --- | --- | --- |
 | 0.0.1 | `requests` | `arn:aws:lambda:<<YOUR-AWS-REGION-CODE>>:486140753397:layer:LogzioLambdaExtensionLogsLibs:1` |
