@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	maxBulkSizeBytes = 10 * 1024 * 1024  // 10 MB
+	maxBulkSizeBytes = 10 * 1024 * 1024 // 10 MB
 )
 
 var logger = log.WithFields(log.Fields{"agent": "logsApiAgent"})
@@ -35,7 +35,7 @@ func NewLogzioLogger() (*logzio.LogzioSender, error) {
 			logzio.SetInMemoryQueue(true),
 			logzio.SetDebug(os.Stdout),
 			logzio.SetinMemoryCapacity(maxBulkSizeBytes), //bytes
-			logzio.SetDrainDuration(time.Second * 5),
+			logzio.SetDrainDuration(time.Second*5),
 			logzio.SetDebug(os.Stdout),
 		)
 	} else {
@@ -45,7 +45,7 @@ func NewLogzioLogger() (*logzio.LogzioSender, error) {
 			logzio.SetInMemoryQueue(true),
 			logzio.SetDebug(os.Stdout),
 			logzio.SetinMemoryCapacity(maxBulkSizeBytes), //bytes
-			logzio.SetDrainDuration(time.Second * 5),
+			logzio.SetDrainDuration(time.Second*5),
 		)
 	}
 
