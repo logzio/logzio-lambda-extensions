@@ -101,6 +101,47 @@ Run the function. It may take more than one run of the function for the logs to 
 - To delete the **extension layer**: In your function page, go to the **layers** panel. Click `edit`, select the extension layer, and click `save`.
 - To delete the extension's **environment variables**: In your function page, select the `Configuration` tab, select `Environment variables`, click `edit`, and remove the variables that you added for the extension.
 
+### Parsing logs
+
+By default, the extension sends the logs as strings.  
+If your logs are formatted, and you wish to parse them to separate fields,
+The extension uses the [grok library](https://github.com/vjeantet/grok) in order to parse grok patterns.
+You can see [here](https://github.com/vjeantet/grok/tree/master/patterns) all the pre-built grok patterns (for example `COMMONAPACHELOG` is already a known pattern in the library).
+If you need to use a custom pattern, you can use the environment variables `GROK_PATTERNS` and `LOGS_FORMAT`.
+
+#### Example
+
+For logs that are formatted like this:
+
+```python
+%(app_name)s : %(message)s
+```
+
+Where in `app_name` will always be `cool app`, and `message` we will have strings containing whitespaces, letters and numbers.
+
+We wish to have `app_name`, `message` in their own fields, named `my_app` and `my_message`, respectively.
+To do so, we will set the environment variables as follows:
+
+##### GROK_PATTERNS
+The `GROK_PATTERNS` variable should be in a JSON format.
+The key will use as the pattern name, and the value should be the regex to capture the pattern.  
+In our case, we know that `app_name` will always be cool app, but don't know what `message` will be, so we will set `GROK_PATTERNS` to be: `{"app_name":"cool app","message":".*"}`
+
+##### LOGS_FORMAT
+The `LOGS_FORMAT` variable will contain the format that we should expect the logs to be in, in accordance to the pattern names that we used in `GROK_PATTERNS`.  
+The variable should be in a grok format for each pattern name: `${PATTERN_NAME:FIELD_NAME}` where `PATTERN_NAME` is the pattern name from `GROK_PATTERNS`, and `FIELD_NAME` is the name of the field you want the pattern to be parsed to.
+In our case, we want that `app_name` will appear under the field `my_app`, and `message` will appear under the field `my_message`, and we know that the logs format is as mentioned above
+therefore we will set `LOGS_FORMAT` as: `%{app_name:my_app} : %{message:my_message}`.
+
+The logs that match the configuration above will appear in Logz.io with the fields `lambda.record.my_app`, `lambda.record.my_message`.  
+The log: `"cool app : The sky is so blue"`, we be parsed to look like this:
+```
+lambda.record.my_app: cool app
+lambda.record.my_message: The sky is so blue
+```
+
+To learn more about grok, you can read the [grok library](https://github.com/vjeantet/grok), [Logz.io's blog post](https://logz.io/blog/logstash-grok/), or watch [this introduction to grok video](https://logz.io/learn/introduction-to-the-logstash-grok/).
+
 ### Environment Variables
 
 | Name | Description |Required/Default|
@@ -110,11 +151,14 @@ Run the function. It may take more than one run of the function for the logs to 
 | `LOGS_EXT_LOG_LEVEL` |  Log level of the extension. Can be set to one of the following: `debug`, `info`, `warn`, `error`, `fatal`, `panic`. |Default: `info` |
 | `ENABLE_EXTENSION_LOGS` |  Set to `true` if you wish the extension logs will be shipped to your Logz.io account. | Default: `false` |
 | `ENABLE_PLATFORM_LOGS` | The platform log captures runtime or execution environment errors. Set to `true` if you wish the platform logs will be shipped to your Logz.io account. | Default: `false` |
+| `GROK_PATTERNS` | Must be set with `LOGS_FORMAT`. Use this if you want to parse your logs into fields. A JSON list that contains the field name and the regex that will match the field. To understand more see the [parsing logs](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#parsing-logs) section. | - |
+| `LOGS_FORMAT` | Must be set with `GROK_PATTERNS`. Use this if you want to parse your logs into fields. The format in which the logs will appear, in accordance to grok conventions. To understand more see the [parsing logs](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#parsing-logs) section. | - |
 
 ### Lambda extension versions
 
 | Version | Supported Runtimes | AWS ARN |
 | --- | --- | --- |
+| 0.2.0 | <<TODO>> | `arn:aws:lambda:<<YOUR-AWS-REGION-CODE>>:486140753397:layer:LogzioLambdaExtensionLogs:3` |
 | 0.1.0| `.NET Core 3.1`, `Java 11`, `Java 8`, `Node.js 14.x`, `Node.js 12.x`, `Node.js 10.x`, `Python 3.8`, `Python 3.7`, `Ruby 2.7`, `Ruby 2.5`, `Custom runtime`| `arn:aws:lambda:<<YOUR-AWS-REGION-CODE>>:486140753397:layer:LogzioLambdaExtensionLogs:2` |
 | 0.0.1 | `Python 3.7`, `Python 3.8` | `arn:aws:lambda:<<YOUR-AWS-REGION-CODE>>:486140753397:layer:LogzioLambdaExtensionLogs:1` |
 
@@ -141,6 +185,9 @@ Note: the dependencies layer is deprecated.
 | 0.0.1 | `requests` | `arn:aws:lambda:<<YOUR-AWS-REGION-CODE>>:486140753397:layer:LogzioLambdaExtensionLogsLibs:1` |
 
 ### Changelog:
+
+- **0.2.0**:
+  - Allow parsing log into fields. To learn more see [parsing logs](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#parsing-logs) section.
 - **0.1.0**:
     - **BREAKING CHANGES**: Written in Go, supports multiple runtimes. Compatible with the GA version of the Extensions API.
 - **0.0.1**: Initial release. Supports only python 3.7, python 3.8 runtimes. Compatible with the beta version of the Extensions API.

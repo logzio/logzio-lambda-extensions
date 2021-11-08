@@ -18,7 +18,7 @@ const (
 
 	extensionType = "lambda-extension-logs"
 
-	grokKeyLogFormat = "LOG_PATTERN"
+	grokKeyLogFormat = "LOG_FORMAT"
 )
 
 // ConvertLambdaLogToLogzioLog converts a log that was sent from AWS Logs API to a log in a Logz.io format
@@ -62,7 +62,7 @@ func ConvertLambdaLogToLogzioLog(lambdaLog map[string]interface{}) map[string]in
 }
 
 func parseFields(logMap map[string]interface{}, fieldsToParse, grokPatterns, logsFormat string) error {
-	g, err := grok.New()
+	g, err := grok.NewWithConfig(&grok.Config{NamedCapturesOnly: true})
 	if err != nil {
 		return err
 	}
@@ -73,7 +73,7 @@ func parseFields(logMap map[string]interface{}, fieldsToParse, grokPatterns, log
 	}
 
 	logger.Debugf("about to parse: %s", fieldsToParse)
-	fields, err := g.Parse(fmt.Sprintf("%%{%s}", grokKeyLogFormat), fieldsToParse)
+	fields, err := g.Parse(fmt.Sprintf(`%%{%s}`, grokKeyLogFormat), fmt.Sprintf(`%s`, fieldsToParse))
 	logger.Debugf("number of fields after grok: %d", len(fields))
 	if err != nil {
 		return err
@@ -84,12 +84,8 @@ func parseFields(logMap map[string]interface{}, fieldsToParse, grokPatterns, log
 	}
 
 	for key, val := range fields {
-		if key != grokKeyLogFormat {
-			logger.Debugf("adding field: %s to logzio log", key)
-			logMap[fldLogzioLambdaRecord+"."+key] = val
-		} else {
-			logger.Debugf("ignoring field of %s", grokKeyLogFormat)
-		}
+		logger.Debugf("adding field: %s to logzio log", key)
+		logMap[fldLogzioLambdaRecord+"."+key] = val
 	}
 
 	return nil
@@ -102,14 +98,15 @@ func addGrokPatterns(g *grok.Grok, patternsStr, logFormat string) error {
 		return err
 	}
 
-	err = g.AddPatternsFromMap(grokPatterns)
-	if err != nil {
-		return err
+	for key, val := range grokPatterns {
+		fVal := fmt.Sprintf(`%s`, val)
+		logger.Debugf("adding pattern %s", fVal)
+		g.AddPattern(key, fVal)
 	}
 
 	logger.Debugf("added patterns from user")
 
-	err = g.AddPattern(grokKeyLogFormat, logFormat)
+	err = g.AddPattern(grokKeyLogFormat, fmt.Sprintf(`%s`, logFormat))
 	if err != nil {
 		return err
 	}
