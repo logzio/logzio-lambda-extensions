@@ -14,6 +14,7 @@ const (
 	fldLogzioLambdaType   = "lambda.log.type"
 	fldLambdaRecord       = "record"
 	fldLogzioMsg          = "message"
+	fldLogzioMsgNested    = "message_nested"
 	fldLogzioLambdaRecord = "lambda.record"
 
 	extensionType = "lambda-extension-logs"
@@ -52,7 +53,15 @@ func ConvertLambdaLogToLogzioLog(lambdaLog map[string]interface{}) map[string]in
 		}
 
 		if sendAsString {
-			logzioLog[fldLogzioMsg] = lambdaLog[fldLambdaRecord]
+			var nested map[string]interface{}
+			err := json.Unmarshal([]byte(fmt.Sprintf(`%s`, lambdaLog[fldLambdaRecord])), &nested)
+			if err != nil {
+				logger.Warningf("error occurred while checking if log %s is JSON. ignore if this is not JSON: %s", lambdaLog[fldLambdaRecord], err.Error())
+				logzioLog[fldLogzioMsg] = lambdaLog[fldLambdaRecord]
+			} else {
+				logger.Debugf("detected JSON: %s", lambdaLog[fldLambdaRecord])
+				logzioLog[fldLogzioMsgNested] = nested
+			}
 		}
 	default:
 		logzioLog[fldLogzioLambdaRecord] = lambdaLog[fldLambdaRecord]
@@ -83,10 +92,7 @@ func parseFields(logMap map[string]interface{}, fieldsToParse, grokPatterns, log
 		return fmt.Errorf("could not parse fields with the current patterns & format")
 	}
 
-	for key, val := range fields {
-		logger.Debugf("adding field: %s to logzio log", key)
-		logMap[fldLogzioLambdaRecord+"."+key] = val
-	}
+	addFields(logMap, fields)
 
 	return nil
 }
@@ -114,4 +120,25 @@ func addGrokPatterns(g *grok.Grok, patternsStr, logFormat string) error {
 	logger.Debugf("added %s: %s", grokKeyLogFormat, logFormat)
 
 	return nil
+}
+
+func addFields(logsMap map[string]interface{}, fields map[string]string) {
+	var nested map[string]interface{}
+	for key, val := range fields {
+		logger.Debugf("adding field: %s to logzio log", key)
+		// Trying to see if the string is in JSON format.
+		// If so - add the nested version to the log
+		err := json.Unmarshal([]byte(fmt.Sprintf(`%s`, val)), &nested)
+		if err != nil {
+			logger.Warningf("error occurred while checking if log %s is JSON. ignore if this is not JSON: %s", val, err.Error())
+		} else {
+			logger.Debugf("detected JSON: %s", val)
+		}
+
+		if nested != nil && len(nested) > 0 {
+			logsMap[key] = nested
+		} else {
+			logsMap[key] = val
+		}
+	}
 }

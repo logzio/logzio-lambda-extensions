@@ -129,18 +129,36 @@ In our case, we know that `app_name` will always be cool app, but don't know wha
 
 ##### LOGS_FORMAT
 The `LOGS_FORMAT` variable will contain the format that we should expect the logs to be in, in accordance to the pattern names that we used in `GROK_PATTERNS`.  
-The variable should be in a grok format for each pattern name: `${PATTERN_NAME:FIELD_NAME}` where `PATTERN_NAME` is the pattern name from `GROK_PATTERNS`, and `FIELD_NAME` is the name of the field you want the pattern to be parsed to.
+The variable should be in a grok format for each pattern name: `${PATTERN_NAME:FIELD_NAME}` where `PATTERN_NAME` is the pattern name from `GROK_PATTERNS`, and `FIELD_NAME` is the name of the field you want the pattern to be parsed to.  
+**Note** that the `FIELD_NAME` cannot contain a dot (`.`) in it.
 In our case, we want that `app_name` will appear under the field `my_app`, and `message` will appear under the field `my_message`, and we know that the logs format is as mentioned above
 therefore we will set `LOGS_FORMAT` as: `%{app_name:my_app} : %{message:my_message}`.
 
 The logs that match the configuration above will appear in Logz.io with the fields `lambda.record.my_app`, `lambda.record.my_message`.  
 The log: `"cool app : The sky is so blue"`, we be parsed to look like this:
 ```
-lambda.record.my_app: cool app
-lambda.record.my_message: The sky is so blue
+my_app: cool app
+my_message: The sky is so blue
 ```
 
 To learn more about grok, you can read the [grok library](https://github.com/vjeantet/grok), [Logz.io's blog post](https://logz.io/blog/logstash-grok/), or watch [this introduction to grok video](https://logz.io/learn/introduction-to-the-logstash-grok/).
+
+### Nested fields
+
+As of v0.2.0 the extension can detect if a log is in JSON format, and to parse the fields so that they will appear as nested fields in the Logz.io app.
+For example, the following log:
+
+```
+{ "foo": "bar", "field2": "val2" }
+```
+
+Will appear under the fields:
+```
+message_nested.foo: bar
+message_nested.field2: val2
+```
+
+**Note:** The user must insert a valid JSON. Sending a dictionary or any key-value data structure that is not in JSON format will cause the log to be sent as a string.
 
 ### Environment Variables
 
@@ -151,7 +169,7 @@ To learn more about grok, you can read the [grok library](https://github.com/vje
 | `LOGS_EXT_LOG_LEVEL` |  Log level of the extension. Can be set to one of the following: `debug`, `info`, `warn`, `error`, `fatal`, `panic`. |Default: `info` |
 | `ENABLE_EXTENSION_LOGS` |  Set to `true` if you wish the extension logs will be shipped to your Logz.io account. | Default: `false` |
 | `ENABLE_PLATFORM_LOGS` | The platform log captures runtime or execution environment errors. Set to `true` if you wish the platform logs will be shipped to your Logz.io account. | Default: `false` |
-| `GROK_PATTERNS` | Must be set with `LOGS_FORMAT`. Use this if you want to parse your logs into fields. A JSON list that contains the field name and the regex that will match the field. To understand more see the [parsing logs](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#parsing-logs) section. | - |
+| `GROK_PATTERNS` | Must be set with `LOGS_FORMAT`. Use this if you want to parse your logs into fields. A minified JSON list that contains the field name and the regex that will match the field. To understand more see the [parsing logs](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#parsing-logs) section. | - |
 | `LOGS_FORMAT` | Must be set with `GROK_PATTERNS`. Use this if you want to parse your logs into fields. The format in which the logs will appear, in accordance to grok conventions. To understand more see the [parsing logs](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#parsing-logs) section. | - |
 
 ### Lambda extension versions
@@ -188,6 +206,7 @@ Note: the dependencies layer is deprecated.
 
 - **0.2.0**:
   - Allow parsing log into fields. To learn more see [parsing logs](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#parsing-logs) section.
+  - Allow nested JSON within logs. To learn more see [nested fields](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#nested-fields) section.
 - **0.1.0**:
     - **BREAKING CHANGES**: Written in Go, supports multiple runtimes. Compatible with the GA version of the Extensions API.
 - **0.0.1**: Initial release. Supports only python 3.7, python 3.8 runtimes. Compatible with the beta version of the Extensions API.
