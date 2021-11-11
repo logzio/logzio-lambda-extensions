@@ -9,9 +9,6 @@ jobs:
       GO111MODULE: on
     name: Test
     runs-on: ubuntu-18.04
-    defaults:
-      run:
-        working-directory: ./.../logzio-lambda-extensions-logs
     steps:
       - uses: actions/checkout@v2
       - name: Set up Go
@@ -23,5 +20,5 @@ jobs:
           go get golang.org/x/tools/cmd/cover
           go get github.com/mattn/goveralls
       - name: Test
-        run: |
-          go test -v -race -covermode=atomic -coverprofile=coverage.out
+        working-directory: ./.../logzio-lambda-extensions-logs/utils
+        run: go test -v -race -covermode=atomic -coverprofile=coverage.out
