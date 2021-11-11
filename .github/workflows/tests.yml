@@ -20,6 +20,7 @@ jobs:
           go get golang.org/x/tools/cmd/cover
           go get github.com/mattn/goveralls
       - name: Test
+        working-directory: ./logzio-lambda-extensions-logs/utils
         run: |
           pwd
           go test -v -race ./logzio-lambda-extensions-logs/utils -covermode=atomic -coverprofile=coverage.out
