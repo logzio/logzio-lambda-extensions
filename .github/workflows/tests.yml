@@ -21,6 +21,5 @@ jobs:
           go get github.com/mattn/goveralls
       - name: Test
         run: |
-          cd ...
-          cd logzio-lambda-extensions-logs/utils
+          cd ../../logzio-lambda-extensions-logs/utils
           go test -v -race -covermode=atomic -coverprofile=coverage.out
