@@ -23,4 +23,4 @@ jobs:
         working-directory: ./logzio-lambda-extensions-logs/utils
         run: |
           pwd
-          go test -v -race ./logzio-lambda-extensions-logs/utils -covermode=atomic -coverprofile=coverage.out
+          go test -v -race -covermode=atomic -coverprofile=coverage.out
