@@ -7,17 +7,17 @@ import (
 )
 
 const (
-	fldLogzioTimestamp    = "@timestamp"
-	fldLambdaTime         = "time"
-	fldLogzioType         = "type"
-	fldLambdaType         = "type"
-	fldLogzioLambdaType   = "lambda.log.type"
-	fldLambdaRecord       = "record"
-	fldLogzioMsg          = "message"
-	fldLogzioMsgNested    = "message_nested"
-	fldLogzioLambdaRecord = "lambda.record"
+	FldLogzioTimestamp = "@timestamp"
+	FldLambdaTime      = "time"
+	FldLogzioType       = "type"
+	FldLambdaType       = "type"
+	FldLogzioLambdaType = "lambda.log.type"
+	FldLambdaRecord    = "record"
+	FldLogzioMsg          = "message"
+	FldLogzioMsgNested    = "message_nested"
+	FldLogzioLambdaRecord = "lambda.record"
 
-	extensionType = "lambda-extension-logs"
+	ExtensionType = "lambda-extension-logs"
 
 	grokKeyLogFormat = "LOG_FORMAT"
 )
@@ -26,12 +26,12 @@ const (
 func ConvertLambdaLogToLogzioLog(lambdaLog map[string]interface{}) map[string]interface{} {
 	sendAsString := false
 	logzioLog := make(map[string]interface{})
-	logzioLog[fldLogzioTimestamp] = lambdaLog[fldLambdaTime]
-	logzioLog[fldLogzioType] = extensionType
-	logzioLog[fldLogzioLambdaType] = lambdaLog[fldLambdaType]
-	logger.Debugf("working on: %v", lambdaLog[fldLambdaRecord])
+	logzioLog[FldLogzioTimestamp] = lambdaLog[FldLambdaTime]
+	logzioLog[FldLogzioType] = ExtensionType
+	logzioLog[FldLogzioLambdaType] = lambdaLog[FldLambdaType]
+	logger.Debugf("working on: %v", lambdaLog[FldLambdaRecord])
 
-	switch lambdaLog[fldLambdaRecord].(type) {
+	switch lambdaLog[FldLambdaRecord].(type) {
 	case string:
 		grokPattern := GetGrokPatterns()
 		logsFormat := GetLogsFormat()
@@ -39,7 +39,7 @@ func ConvertLambdaLogToLogzioLog(lambdaLog map[string]interface{}) map[string]in
 			logger.Debugf("grok pattern: %s", grokPattern)
 			logger.Debugf("logs format: %s", logsFormat)
 			logger.Info("detected grok pattern and logs format. trying to parse log")
-			err := parseFields(logzioLog, lambdaLog[fldLambdaRecord].(string), grokPattern, logsFormat)
+			err := parseFields(logzioLog, lambdaLog[FldLambdaRecord].(string), grokPattern, logsFormat)
 			if err != nil {
 				logger.Errorf("error occurred while trying to parse fields. sedning log as a string: %s", err.Error())
 				sendAsString = true
@@ -54,17 +54,17 @@ func ConvertLambdaLogToLogzioLog(lambdaLog map[string]interface{}) map[string]in
 
 		if sendAsString {
 			var nested map[string]interface{}
-			err := json.Unmarshal([]byte(fmt.Sprintf(`%s`, lambdaLog[fldLambdaRecord])), &nested)
+			err := json.Unmarshal([]byte(fmt.Sprintf(`%s`, lambdaLog[FldLambdaRecord])), &nested)
 			if err != nil {
-				logger.Warningf("error occurred while checking if log %s is JSON. ignore if this is not JSON: %s", lambdaLog[fldLambdaRecord], err.Error())
-				logzioLog[fldLogzioMsg] = lambdaLog[fldLambdaRecord]
+				logger.Infof("error occurred while checking if log %s is JSON. ignore if this is not JSON: %s", lambdaLog[FldLambdaRecord], err.Error())
+				logzioLog[FldLogzioMsg] = lambdaLog[FldLambdaRecord]
 			} else {
-				logger.Debugf("detected JSON: %s", lambdaLog[fldLambdaRecord])
-				logzioLog[fldLogzioMsgNested] = nested
+				logger.Debugf("detected JSON: %s", lambdaLog[FldLambdaRecord])
+				logzioLog[FldLogzioMsgNested] = nested
 			}
 		}
 	default:
-		logzioLog[fldLogzioLambdaRecord] = lambdaLog[fldLambdaRecord]
+		logzioLog[FldLogzioLambdaRecord] = lambdaLog[FldLambdaRecord]
 	}
 
 	return logzioLog
@@ -130,7 +130,7 @@ func addFields(logsMap map[string]interface{}, fields map[string]string) {
 		// If so - add the nested version to the log
 		err := json.Unmarshal([]byte(fmt.Sprintf(`%s`, val)), &nested)
 		if err != nil {
-			logger.Warningf("error occurred while checking if log %s is JSON. ignore if this is not JSON: %s", val, err.Error())
+			logger.Infof("error occurred while checking if log %s is JSON. ignore if this is not JSON: %s", val, err.Error())
 		} else {
 			logger.Debugf("detected JSON: %s", val)
 		}
