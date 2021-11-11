@@ -20,4 +20,4 @@ jobs:
           go get golang.org/x/tools/cmd/cover
           go get github.com/mattn/goveralls
       - name: Test
-        run: go test -v -race ./... -covermode=atomic -coverprofile=coverage.out
+        run: go test -v -race ./logzio-lambda-extensions-logs/utils -covermode=atomic -coverprofile=coverage.out
