@@ -20,6 +20,7 @@ import (
 
 // INITIAL_QUEUE_SIZE is the initial size set for the synchronous logQueue
 const INITIAL_QUEUE_SIZE = 5
+
 func main() {
 	extensionName := path.Base(os.Args[0])
 	printPrefix := fmt.Sprintf("[%s]", extensionName)

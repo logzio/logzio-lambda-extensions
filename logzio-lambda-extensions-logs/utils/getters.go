@@ -15,6 +15,8 @@ const (
 	envEnablePlatformLogs      = "ENABLE_PLATFORM_LOGS"
 	envEnableExtensionLogs     = "ENABLE_EXTENSION_LOGS"
 	envExtensionLogLevel       = "LOGS_EXT_LOG_LEVEL"
+	envGrokPatterns            = "GROK_PATTERNS"
+	envLogsFormat              = "LOGS_FORMAT"
 	LogLevelDebug              = "debug"
 	LogLevelInfo               = "info"
 	LogLevelWarn               = "warn"
@@ -24,7 +26,7 @@ const (
 	defaultEnablePlatformLogs  = false
 	defaultEnableExtensionLogs = false
 	defaultExtensionLogLevel   = LogLevelInfo
-	)
+)
 
 func GetToken() (string, error) {
 	token := os.Getenv(envLogzioLogsToken)
@@ -86,4 +88,12 @@ func GetExtensionLogLevel() string {
 
 	logger.Infof("Reverting to default log level: %s", defaultExtensionLogLevel)
 	return defaultExtensionLogLevel
+}
+
+func GetGrokPatterns() string {
+	return os.Getenv(envGrokPatterns)
+}
+
+func GetLogsFormat() string {
+	return os.Getenv(envLogsFormat)
 }
