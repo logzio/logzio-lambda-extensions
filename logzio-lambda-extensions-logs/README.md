@@ -123,11 +123,13 @@ We wish to have `app_name`, `message` in their own fields, named `my_app` and `m
 To do so, we'll set the environment variables as follows:
 
 ##### GROK_PATTERNS
+
 The `GROK_PATTERNS` variable should be in a JSON format.
 The key is used as the pattern name, and the value should be the regex that captures the pattern.  
-In our case, while `app_name` always stays cool app, we don't know what `message` will be, so we need to set `GROK_PATTERNS` as: `{"app_name":"cool app","message":".*"}`
+In our case, while `app_name` always stays `cool app`, we don't know what `message` will be, so we need to set `GROK_PATTERNS` as: `{"app_name":"cool app","message":".*"}`
 
 ##### LOGS_FORMAT
+
 The `LOGS_FORMAT` variable will contain the same format as the logs, according to the pattern names that we used in `GROK_PATTERNS`.  
 The variable should be in a grok format for each pattern name: `${PATTERN_NAME:FIELD_NAME}` where `PATTERN_NAME` is the pattern name from `GROK_PATTERNS`, and `FIELD_NAME` is the name of the field you want the pattern to be parsed to.  
 **Note** that the `FIELD_NAME` cannot contain a dot (`.`) in it.
