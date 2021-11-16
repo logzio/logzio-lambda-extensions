@@ -117,9 +117,9 @@ For logs that are formatted like this:
 %(app_name)s : %(message)s
 ```
 
-Where in `app_name` will always be `cool app`, and `message` we will have strings containing whitespaces, letters and numbers.
+we will use `cool app` as the `app_name` and the `message` will have strings containing whitespaces, letters and numbers.
 
-We wish to have `app_name`, `message` in their own fields, named `my_app` and `my_message`, respectively.
+In Logz.io we wish to have `app_name`, `message` in their own fields, named `my_app` and `my_message`, respectively.
 To do so, we'll set the environment variables as follows:
 
 ##### GROK_PATTERNS
