@@ -2,22 +2,23 @@
 
 Lambda extensions enable tools to integrate deeply into the Lambda execution environment to control and participate in Lambda’s lifecycle.
 To read more about Lambda Extensions, [click here](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-extensions-api.html).  
-The Logz.io Lambda extension for logs, uses the AWS Extensions API and [AWS Logs API](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-logs-api.html), and sends your Lambda Function Logs directly to your Logz.io account.
+The Logz.io Lambda extension for logs uses the AWS Extensions API and [AWS Logs API](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-logs-api.html), and sends your Lambda Function Logs directly to your Logz.io account.
 
 This repo is based on the [AWS lambda extensions sample](https://github.com/aws-samples/aws-lambda-extensions).
 
-This extension is written in Go, but can be run with runtimes that support extensions](https://docs.aws.amazon.com/lambda/latest/dg/using-extensions.html).
+This extension is written in Go, but can be run with runtimes that support [extensions](https://docs.aws.amazon.com/lambda/latest/dg/using-extensions.html).
 
 ### Prerequisites
 
 * Lambda function with [supported runtime](https://docs.aws.amazon.com/lambda/latest/dg/using-extensions.html) for extensions.
 * AWS Lambda limitations: A function can use up to five layers at a time. The total unzipped size of the function and all layers cannot exceed the unzipped deployment package size limit of 250 MB.
 
-### Important notes:
-* If the extension won't have enough time to receive logs from AWS Logs API, it may send the logs in the next invocation of the Lambda function.
-  So if you want that all the logs will be sent by the end of your function's run, you'll need to add at the end of your Lambda function code a sleep interval that will allow the extension enough time to do it's job.
+### Important notes
+
+* If the extension doesn't have enough time to receive logs from AWS Logs API, it may send the logs in the next invocation of the Lambda function.
+  So if you want that all the logs are sent by the end of your function's run, you'll need to add at the end of your Lambda function code a sleep interval that will allow the extension enough time to do its job.
 * Due to [Lambda's execution environment lifecycle](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-context.html), the extension is being invoked on two events - `INVOKE` and `SHUTDOWN`.
-  That means that if your Lambda function goes into the `SHUTDOWN` phase, the extension will run and if there are logs in it's queue, it will send them.
+  This means that if your Lambda function goes into the `SHUTDOWN` phase, the extension will run and if there are logs in its queue, it will send them.
 
 ### Extension deployment options
 
@@ -44,7 +45,7 @@ aws lambda update-function-configuration \
 
 | Placeholder | Description |
 |---|---|
-| `<<FUNCTION-NAME>>` |  Name of the Lambda Function you want to monitor. |
+| `<<FUNCTION-NAME>>` |  Name of the Lambda function you want to monitor. |
 | `<<LAYERS>>` | A space-separated list of function layers to add to the function's execution environment. Specify each layer by its ARN, including the version.  For the ARN, see the [**Lambda extension versions** table](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#lambda-extension-versions).|
 | `<<ENV-VARS>>`  | Key-value pairs containing environment variables that are accessible from function code during execution. Should appear in the following format: `KeyName1=string,KeyName2=string`.  For a list of all the environment variables for the extension, see the [**Lambda environment variables** table](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#environment-variables).|
 
@@ -104,9 +105,8 @@ Run the function. It may take more than one run of the function for the logs to 
 ### Parsing logs
 
 By default, the extension sends the logs as strings.  
-If your logs are formatted, and you wish to parse them to separate fields,
-The extension uses the [grok library](https://github.com/vjeantet/grok) to parse grok patterns.
-You can see [here](https://github.com/vjeantet/grok/tree/master/patterns) all the pre-built grok patterns (for example `COMMONAPACHELOG` is already a known pattern in the library).
+If your logs are formatted, and you wish to parse them to separate fields, the extension will use the [grok library](https://github.com/vjeantet/grok) to parse grok patterns.
+You can see all the pre-built grok patterns (for example `COMMONAPACHELOG` is already a known pattern in the library) [here](https://github.com/vjeantet/grok/tree/master/patterns).
 If you need to use a custom pattern, you can use the environment variables `GROK_PATTERNS` and `LOGS_FORMAT`.
 
 #### Example
