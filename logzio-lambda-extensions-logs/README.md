@@ -194,6 +194,7 @@ message_nested.field2: val2
 | Europe (Stockholm) | `eu-north-1` | - |
 | Asia Pacific (Sydney) | `ap-southeast-2` | Available from v0.1.0 |
 | Canada (Central) | `ca-central-1` | Available from v0.1.0 |
+| South America (São Paulo) | `sa-east-1` | Available from v0.2.0 |
 
 **NOTE:** If your AWS region is not in the list, please reach out to Logz.io's support or open an issue in this repo.
 
