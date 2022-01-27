@@ -70,6 +70,7 @@ func ConvertLambdaLogToLogzioLog(lambdaLog map[string]interface{}) map[string]in
 		logzioLog[FldLogzioLambdaRecord] = lambdaLog[FldLambdaRecord]
 	}
 
+	addCustomFields(logzioLog)
 	return logzioLog
 }
 
@@ -160,4 +161,33 @@ func addAwsMetadata(logzioLog map[string]interface{}) {
 	} else {
 		logger.Warning("could not get AWS region. The field will not appear in the log")
 	}
+}
+
+func addCustomFields(logzioLog map[string]interface{}) {
+	customFields := GetCustomFields()
+	if len(customFields) > 0 {
+		logKeys := make([]string, len(logzioLog))
+		for k := range logzioLog {
+			logKeys = append(logKeys, k)
+		}
+
+		for key, val := range customFields {
+			// Making sure that the custom fields don't override an existing field.
+			// If it exists - custom field will be ignored.
+			if !contains(logKeys, key) {
+				logzioLog[key] = val
+			} else {
+				logger.Warningf("custom field key %s already exist in log. ignoring this custom field", key)
+			}
+		}
+	}
+}
+
+func contains(slice []string, s string) bool {
+	for _, value := range slice {
+		if value == s {
+			return true
+		}
+	}
+	return false
 }

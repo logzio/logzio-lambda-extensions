@@ -168,3 +168,35 @@ func TestConverterAddAwsMetadata(t *testing.T) {
 	assert.Equal(t, lambdaName, logzioLog[utils.FldLogzioLambdaName])
 	assert.Equal(t, region, logzioLog[utils.FldLogzioAwsRegion])
 }
+
+func TestConverterCustomFields(t *testing.T) {
+	custom := "hello=world,hola=mundo"
+	os.Setenv("CUSTOM_FIELDS", custom)
+	lambdaLog := map[string]interface{}{
+		utils.FldLambdaTime:   "2021-11-11T08:28:16.870Z",
+		utils.FldLambdaType:   "function",
+		utils.FldLambdaRecord: "{\"foo\": \"bar\"}\n",
+	}
+
+	logzioLog := utils.ConvertLambdaLogToLogzioLog(lambdaLog)
+	assert.NotNil(t, logzioLog)
+	assert.NotZero(t, len(logzioLog))
+	assert.Equal(t, "world", logzioLog["hello"])
+	assert.Equal(t, "mundo", logzioLog["hola"])
+}
+
+func TestConverterCustomFieldsKeyExistInLog(t *testing.T) {
+	custom := "my_message=world,hola=mundo"
+	os.Setenv("CUSTOM_FIELDS", custom)
+	lambdaLog := map[string]interface{}{
+		utils.FldLambdaTime:   "2021-11-11T08:28:16.870Z",
+		utils.FldLambdaType:   "function",
+		utils.FldLambdaRecord: "{\"foo\": \"bar\"}\n",
+	}
+
+	logzioLog := utils.ConvertLambdaLogToLogzioLog(lambdaLog)
+	assert.NotNil(t, logzioLog)
+	assert.NotZero(t, len(logzioLog))
+	assert.NotEqual(t, "world", logzioLog["message"])
+	assert.Equal(t, "mundo", logzioLog["hola"])
+}
