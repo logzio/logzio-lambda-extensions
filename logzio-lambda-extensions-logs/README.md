@@ -176,26 +176,27 @@ message_nested.field2: val2
 
 ### Lambda extension versions
 
-| Version | Supported Runtimes | AWS ARN |
-| --- | --- | --- |
-| 0.2.0 | `.NET Core 3.1`, `Java 11`, `Java 8`, `Node.js 14.x`, `Node.js 12.x`, `Python 3.9`, `Python 3.8`, `Python 3.7`, `Ruby 2.7`, `Custom runtime` | `arn:aws:lambda:<<YOUR-AWS-REGION-CODE>>:486140753397:layer:LogzioLambdaExtensionLogs:3` |
-| 0.1.0| `.NET Core 3.1`, `Java 11`, `Java 8`, `Node.js 14.x`, `Node.js 12.x`, `Node.js 10.x`, `Python 3.8`, `Python 3.7`, `Ruby 2.7`, `Ruby 2.5`, `Custom runtime`| `arn:aws:lambda:<<YOUR-AWS-REGION-CODE>>:486140753397:layer:LogzioLambdaExtensionLogs:2` |
-| 0.0.1 | `Python 3.7`, `Python 3.8` | `arn:aws:lambda:<<YOUR-AWS-REGION-CODE>>:486140753397:layer:LogzioLambdaExtensionLogs:1` |
+| Version | Supported Runtimes                                                                                                                                         | AWS ARN                                                                                  |
+|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
+| 0.3.0   | `.NET Core 3.1`, `Java 11`, `Java 8`, `Node.js 14.x`, `Node.js 12.x`, `Python 3.9`, `Python 3.8`, `Python 3.7`, `Ruby 2.7`, `Custom runtime`               | `arn:aws:lambda:<<YOUR-AWS-REGION-CODE>>:486140753397:layer:LogzioLambdaExtensionLogs:4` |
+| 0.2.0   | `.NET Core 3.1`, `Java 11`, `Java 8`, `Node.js 14.x`, `Node.js 12.x`, `Python 3.9`, `Python 3.8`, `Python 3.7`, `Ruby 2.7`, `Custom runtime`               | `arn:aws:lambda:<<YOUR-AWS-REGION-CODE>>:486140753397:layer:LogzioLambdaExtensionLogs:3` |
+| 0.1.0   | `.NET Core 3.1`, `Java 11`, `Java 8`, `Node.js 14.x`, `Node.js 12.x`, `Node.js 10.x`, `Python 3.8`, `Python 3.7`, `Ruby 2.7`, `Ruby 2.5`, `Custom runtime` | `arn:aws:lambda:<<YOUR-AWS-REGION-CODE>>:486140753397:layer:LogzioLambdaExtensionLogs:2` |
+| 0.0.1   | `Python 3.7`, `Python 3.8`                                                                                                                                 | `arn:aws:lambda:<<YOUR-AWS-REGION-CODE>>:486140753397:layer:LogzioLambdaExtensionLogs:1` |
 
 ### Available AWS regions
 
-| Region Name | Region Code | Notes |
-| --- | ---- | --- |
-| US East (N. Virginia) | `us-east-1` | - |
-| US East (Ohio) | `us-east-2` | - |
-| US West (N. California) | `us-west-1` | - |
-| US West (Oregon) | `us-west-2` | - |
-| Europe (Frankfurt) | `eu-central-1`| - |
-| Europe (Ireland) | `eu-west-1` | - |
-| Europe (Stockholm) | `eu-north-1` | - |
-| Asia Pacific (Sydney) | `ap-southeast-2` | Available from v0.1.0 |
-| Canada (Central) | `ca-central-1` | Available from v0.1.0 |
-| South America (São Paulo) | `sa-east-1` | Available from v0.2.0 |
+| Region Name               | Region Code      | Notes                 |
+|---------------------------|------------------|-----------------------|
+| US East (N. Virginia)     | `us-east-1`      | -                     |
+| US East (Ohio)            | `us-east-2`      | -                     |
+| US West (N. California)   | `us-west-1`      | -                     |
+| US West (Oregon)          | `us-west-2`      | -                     |
+| Europe (Frankfurt)        | `eu-central-1`   | -                     |
+| Europe (Ireland)          | `eu-west-1`      | -                     |
+| Europe (Stockholm)        | `eu-north-1`     | -                     |
+| Asia Pacific (Sydney)     | `ap-southeast-2` | Available from v0.1.0 |
+| Canada (Central)          | `ca-central-1`   | Available from v0.1.0 |
+| South America (São Paulo) | `sa-east-1`      | Available from v0.2.0 |
 
 **NOTE:** If your AWS region is not in the list, please reach out to Logz.io's support or open an issue in this repo.
 
