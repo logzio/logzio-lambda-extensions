@@ -59,7 +59,7 @@ func ConvertLambdaLogToLogzioLog(lambdaLog map[string]interface{}) map[string]in
 			var nested map[string]interface{}
 			err := json.Unmarshal([]byte(fmt.Sprintf(`%s`, lambdaLog[FldLambdaRecord])), &nested)
 			if err != nil {
-				logger.Infof("error occurred while checking if log %s is JSON. ignore if this is not JSON: %s", lambdaLog[FldLambdaRecord], err.Error())
+				logger.Infof("ignore if this log is not JSON. while checking if log %s is JSON, receive this : %s", lambdaLog[FldLambdaRecord], err.Error())
 				logzioLog[FldLogzioMsg] = lambdaLog[FldLambdaRecord]
 			} else {
 				logger.Debugf("detected JSON: %s", lambdaLog[FldLambdaRecord])
