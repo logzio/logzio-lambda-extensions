@@ -206,6 +206,8 @@ Note: the dependencies layer is deprecated.
 
 ### Changelog:
 
+- **0.3.0**:
+  - Enrich logs with the following fields: `lambda_function_name`, `aws_region`.
 - **0.2.0**:
   - Allow parsing log into fields. To learn more see [parsing logs](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#parsing-logs) section.
   - Allow nested JSON within logs. To learn more see [nested fields](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#nested-fields) section.

@@ -17,6 +17,8 @@ const (
 	envExtensionLogLevel       = "LOGS_EXT_LOG_LEVEL"
 	envGrokPatterns            = "GROK_PATTERNS"
 	envLogsFormat              = "LOGS_FORMAT"
+	envAwsLambdaFunctionName   = "AWS_LAMBDA_FUNCTION_NAME" // Reserved AWS env var
+	envAwsRegion               = "AWS_REGION"               //Reserved AWS env var
 	LogLevelDebug              = "debug"
 	LogLevelInfo               = "info"
 	LogLevelWarn               = "warn"
@@ -96,4 +98,12 @@ func GetGrokPatterns() string {
 
 func GetLogsFormat() string {
 	return os.Getenv(envLogsFormat)
+}
+
+func GetAwsLambdaFunctionName() string {
+	return os.Getenv(envAwsLambdaFunctionName)
+}
+
+func GetAwsRegion() string {
+	return os.Getenv(envAwsRegion)
 }

@@ -7,15 +7,17 @@ import (
 )
 
 const (
-	FldLogzioTimestamp = "@timestamp"
-	FldLambdaTime      = "time"
-	FldLogzioType       = "type"
-	FldLambdaType       = "type"
-	FldLogzioLambdaType = "lambda.log.type"
-	FldLambdaRecord    = "record"
+	FldLogzioTimestamp    = "@timestamp"
+	FldLambdaTime         = "time"
+	FldLogzioType         = "type"
+	FldLambdaType         = "type"
+	FldLogzioLambdaType   = "lambda.log.type"
+	FldLambdaRecord       = "record"
 	FldLogzioMsg          = "message"
 	FldLogzioMsgNested    = "message_nested"
 	FldLogzioLambdaRecord = "lambda.record"
+	FldLogzioLambdaName   = "lambda_function_name"
+	FldLogzioAwsRegion    = "aws_region"
 
 	ExtensionType = "lambda-extension-logs"
 
@@ -30,6 +32,7 @@ func ConvertLambdaLogToLogzioLog(lambdaLog map[string]interface{}) map[string]in
 	logzioLog[FldLogzioType] = ExtensionType
 	logzioLog[FldLogzioLambdaType] = lambdaLog[FldLambdaType]
 	logger.Debugf("working on: %v", lambdaLog[FldLambdaRecord])
+	addAwsMetadata(logzioLog)
 
 	switch lambdaLog[FldLambdaRecord].(type) {
 	case string:
@@ -140,5 +143,21 @@ func addFields(logsMap map[string]interface{}, fields map[string]string) {
 		} else {
 			logsMap[key] = val
 		}
+	}
+}
+
+func addAwsMetadata(logzioLog map[string]interface{}) {
+	lambdaName := GetAwsLambdaFunctionName()
+	if len(lambdaName) > 0 {
+		logzioLog[FldLogzioLambdaName] = lambdaName
+	} else {
+		logger.Warning("could not get AWS Lambda function name. The field will not appear in the log")
+	}
+
+	awsRegion := GetAwsRegion()
+	if len(awsRegion) > 0 {
+		logzioLog[FldLogzioAwsRegion] = awsRegion
+	} else {
+		logger.Warning("could not get AWS region. The field will not appear in the log")
 	}
 }
