@@ -7,15 +7,17 @@ import (
 )
 
 const (
-	FldLogzioTimestamp = "@timestamp"
-	FldLambdaTime      = "time"
-	FldLogzioType       = "type"
-	FldLambdaType       = "type"
-	FldLogzioLambdaType = "lambda.log.type"
-	FldLambdaRecord    = "record"
+	FldLogzioTimestamp    = "@timestamp"
+	FldLambdaTime         = "time"
+	FldLogzioType         = "type"
+	FldLambdaType         = "type"
+	FldLogzioLambdaType   = "lambda.log.type"
+	FldLambdaRecord       = "record"
 	FldLogzioMsg          = "message"
 	FldLogzioMsgNested    = "message_nested"
 	FldLogzioLambdaRecord = "lambda.record"
+	FldLogzioLambdaName   = "lambda_function_name"
+	FldLogzioAwsRegion    = "aws_region"
 
 	ExtensionType = "lambda-extension-logs"
 
@@ -30,6 +32,7 @@ func ConvertLambdaLogToLogzioLog(lambdaLog map[string]interface{}) map[string]in
 	logzioLog[FldLogzioType] = ExtensionType
 	logzioLog[FldLogzioLambdaType] = lambdaLog[FldLambdaType]
 	logger.Debugf("working on: %v", lambdaLog[FldLambdaRecord])
+	addAwsMetadata(logzioLog)
 
 	switch lambdaLog[FldLambdaRecord].(type) {
 	case string:
@@ -56,7 +59,7 @@ func ConvertLambdaLogToLogzioLog(lambdaLog map[string]interface{}) map[string]in
 			var nested map[string]interface{}
 			err := json.Unmarshal([]byte(fmt.Sprintf(`%s`, lambdaLog[FldLambdaRecord])), &nested)
 			if err != nil {
-				logger.Infof("error occurred while checking if log %s is JSON. ignore if this is not JSON: %s", lambdaLog[FldLambdaRecord], err.Error())
+				logger.Infof("ignore if this log is not JSON. while checking if log %s is JSON, receive this : %s", lambdaLog[FldLambdaRecord], err.Error())
 				logzioLog[FldLogzioMsg] = lambdaLog[FldLambdaRecord]
 			} else {
 				logger.Debugf("detected JSON: %s", lambdaLog[FldLambdaRecord])
@@ -67,6 +70,7 @@ func ConvertLambdaLogToLogzioLog(lambdaLog map[string]interface{}) map[string]in
 		logzioLog[FldLogzioLambdaRecord] = lambdaLog[FldLambdaRecord]
 	}
 
+	addCustomFields(logzioLog)
 	return logzioLog
 }
 
@@ -141,4 +145,49 @@ func addFields(logsMap map[string]interface{}, fields map[string]string) {
 			logsMap[key] = val
 		}
 	}
+}
+
+func addAwsMetadata(logzioLog map[string]interface{}) {
+	lambdaName := GetAwsLambdaFunctionName()
+	if len(lambdaName) > 0 {
+		logzioLog[FldLogzioLambdaName] = lambdaName
+	} else {
+		logger.Warning("could not get AWS Lambda function name. The field will not appear in the log")
+	}
+
+	awsRegion := GetAwsRegion()
+	if len(awsRegion) > 0 {
+		logzioLog[FldLogzioAwsRegion] = awsRegion
+	} else {
+		logger.Warning("could not get AWS region. The field will not appear in the log")
+	}
+}
+
+func addCustomFields(logzioLog map[string]interface{}) {
+	customFields := GetCustomFields()
+	if len(customFields) > 0 {
+		logKeys := make([]string, len(logzioLog))
+		for k := range logzioLog {
+			logKeys = append(logKeys, k)
+		}
+
+		for key, val := range customFields {
+			// Making sure that the custom fields don't override an existing field.
+			// If it exists - custom field will be ignored.
+			if !contains(logKeys, key) {
+				logzioLog[key] = val
+			} else {
+				logger.Warningf("custom field key %s already exist in log. ignoring this custom field", key)
+			}
+		}
+	}
+}
+
+func contains(slice []string, s string) bool {
+	for _, value := range slice {
+		if value == s {
+			return true
+		}
+	}
+	return false
 }

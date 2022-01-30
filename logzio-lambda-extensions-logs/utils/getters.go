@@ -5,6 +5,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"os"
 	"strconv"
+	"strings"
 )
 
 var logger = log.WithFields(log.Fields{"agent": "logzioLogsExtension"})
@@ -17,6 +18,9 @@ const (
 	envExtensionLogLevel       = "LOGS_EXT_LOG_LEVEL"
 	envGrokPatterns            = "GROK_PATTERNS"
 	envLogsFormat              = "LOGS_FORMAT"
+	envCustomFields            = "CUSTOM_FIELDS"
+	envAwsLambdaFunctionName   = "AWS_LAMBDA_FUNCTION_NAME" // Reserved AWS env var
+	envAwsRegion               = "AWS_REGION"               //Reserved AWS env var
 	LogLevelDebug              = "debug"
 	LogLevelInfo               = "info"
 	LogLevelWarn               = "warn"
@@ -96,4 +100,31 @@ func GetGrokPatterns() string {
 
 func GetLogsFormat() string {
 	return os.Getenv(envLogsFormat)
+}
+
+func GetAwsLambdaFunctionName() string {
+	return os.Getenv(envAwsLambdaFunctionName)
+}
+
+func GetAwsRegion() string {
+	return os.Getenv(envAwsRegion)
+}
+
+func GetCustomFields() map[string]string {
+	keyIndex := 0
+	valueIndex := 1
+	fieldsStr := os.Getenv(envCustomFields)
+	customFields := make(map[string]string, 0)
+	if len(fieldsStr) == 0 {
+		return customFields
+	}
+
+	pairs := strings.Split(fieldsStr, ",")
+	for _, pair := range pairs {
+		keyValue := strings.Split(pair, "=")
+		customFields[keyValue[keyIndex]] = keyValue[valueIndex]
+	}
+
+	logger.Debugf("detected %d custom fields", len(customFields))
+	return customFields
 }

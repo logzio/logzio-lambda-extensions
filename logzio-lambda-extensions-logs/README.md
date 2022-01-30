@@ -163,38 +163,40 @@ message_nested.field2: val2
 
 ### Environment Variables
 
-| Name | Description |Required/Default|
-| --- | --- | --- |
-| `LOGZIO_LOGS_TOKEN` | Your Logz.io log shipping [token](https://app.logz.io/#/dashboard/settings/manage-tokens/data-shipping). | Required |
-| `LOGZIO_LISTENER` |  Your  Logz.io listener address, with port 8070 (http) or 8071 (https). For example, for example: `https://listener.logz.io:8071` | Required |
-| `LOGS_EXT_LOG_LEVEL` |  Log level of the extension. Can be set to one of the following: `debug`, `info`, `warn`, `error`, `fatal`, `panic`. |Default: `info` |
-| `ENABLE_EXTENSION_LOGS` |  Set to `true` if you wish the extension logs will be shipped to your Logz.io account. | Default: `false` |
-| `ENABLE_PLATFORM_LOGS` | The platform log captures runtime or execution environment errors. Set to `true` if you wish the platform logs will be shipped to your Logz.io account. | Default: `false` |
-| `GROK_PATTERNS` | Must be set with `LOGS_FORMAT`. Use this if you want to parse your logs into fields. A minified JSON list that contains the field name and the regex that will match the field. To understand more see the [parsing logs](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#parsing-logs) section. | - |
-| `LOGS_FORMAT` | Must be set with `GROK_PATTERNS`. Use this if you want to parse your logs into fields. The format in which the logs will appear, in accordance to grok conventions. To understand more see the [parsing logs](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#parsing-logs) section. | - |
+| Name                    | Description                                                                                                                                                                                                                                                                                                                                 | Required/Default |
+|-------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------|
+| `LOGZIO_LOGS_TOKEN`     | Your Logz.io log shipping [token](https://app.logz.io/#/dashboard/settings/manage-tokens/data-shipping).                                                                                                                                                                                                                                    | Required         |
+| `LOGZIO_LISTENER`       | Your  Logz.io listener address, with port 8070 (http) or 8071 (https). For example: `https://listener.logz.io:8071`                                                                                                                                                                                                                         | Required         |
+| `LOGS_EXT_LOG_LEVEL`    | Log level of the extension. Can be set to one of the following: `debug`, `info`, `warn`, `error`, `fatal`, `panic`.                                                                                                                                                                                                                         | Default: `info`  |
+| `ENABLE_EXTENSION_LOGS` | Set to `true` if you wish the extension logs will be shipped to your Logz.io account.                                                                                                                                                                                                                                                       | Default: `false` |
+| `ENABLE_PLATFORM_LOGS`  | The platform log captures runtime or execution environment errors. Set to `true` if you wish the platform logs will be shipped to your Logz.io account.                                                                                                                                                                                     | Default: `false` |
+| `GROK_PATTERNS`         | Must be set with `LOGS_FORMAT`. Use this if you want to parse your logs into fields. A minified JSON list that contains the field name and the regex that will match the field. To understand more see the [parsing logs](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#parsing-logs) section. | -                |
+| `LOGS_FORMAT`           | Must be set with `GROK_PATTERNS`. Use this if you want to parse your logs into fields. The format in which the logs will appear, in accordance to grok conventions. To understand more see the [parsing logs](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#parsing-logs) section.             | -                |
+| `CUSTOM_FIELDS`         | Include additional fields with every message sent, formatted as `fieldName1=fieldValue1;fieldName2=fieldValue2` (**NO SPACES**). A custom key that clashes with a key from the log itself will be ignored.                                                                                                                                  | -                |
 
 ### Lambda extension versions
 
-| Version | Supported Runtimes | AWS ARN |
-| --- | --- | --- |
-| 0.2.0 | `.NET Core 3.1`, `Java 11`, `Java 8`, `Node.js 14.x`, `Node.js 12.x`, `Python 3.9`, `Python 3.8`, `Python 3.7`, `Ruby 2.7`, `Custom runtime` | `arn:aws:lambda:<<YOUR-AWS-REGION-CODE>>:486140753397:layer:LogzioLambdaExtensionLogs:3` |
-| 0.1.0| `.NET Core 3.1`, `Java 11`, `Java 8`, `Node.js 14.x`, `Node.js 12.x`, `Node.js 10.x`, `Python 3.8`, `Python 3.7`, `Ruby 2.7`, `Ruby 2.5`, `Custom runtime`| `arn:aws:lambda:<<YOUR-AWS-REGION-CODE>>:486140753397:layer:LogzioLambdaExtensionLogs:2` |
-| 0.0.1 | `Python 3.7`, `Python 3.8` | `arn:aws:lambda:<<YOUR-AWS-REGION-CODE>>:486140753397:layer:LogzioLambdaExtensionLogs:1` |
+| Version | Supported Runtimes                                                                                                                                         | AWS ARN                                                                                  |
+|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
+| 0.3.0   | `.NET Core 3.1`, `Java 11`, `Java 8`, `Node.js 14.x`, `Node.js 12.x`, `Python 3.9`, `Python 3.8`, `Python 3.7`, `Ruby 2.7`, `Custom runtime`               | `arn:aws:lambda:<<YOUR-AWS-REGION-CODE>>:486140753397:layer:LogzioLambdaExtensionLogs:4` |
+| 0.2.0   | `.NET Core 3.1`, `Java 11`, `Java 8`, `Node.js 14.x`, `Node.js 12.x`, `Python 3.9`, `Python 3.8`, `Python 3.7`, `Ruby 2.7`, `Custom runtime`               | `arn:aws:lambda:<<YOUR-AWS-REGION-CODE>>:486140753397:layer:LogzioLambdaExtensionLogs:3` |
+| 0.1.0   | `.NET Core 3.1`, `Java 11`, `Java 8`, `Node.js 14.x`, `Node.js 12.x`, `Node.js 10.x`, `Python 3.8`, `Python 3.7`, `Ruby 2.7`, `Ruby 2.5`, `Custom runtime` | `arn:aws:lambda:<<YOUR-AWS-REGION-CODE>>:486140753397:layer:LogzioLambdaExtensionLogs:2` |
+| 0.0.1   | `Python 3.7`, `Python 3.8`                                                                                                                                 | `arn:aws:lambda:<<YOUR-AWS-REGION-CODE>>:486140753397:layer:LogzioLambdaExtensionLogs:1` |
 
 ### Available AWS regions
 
-| Region Name | Region Code | Notes |
-| --- | ---- | --- |
-| US East (N. Virginia) | `us-east-1` | - |
-| US East (Ohio) | `us-east-2` | - |
-| US West (N. California) | `us-west-1` | - |
-| US West (Oregon) | `us-west-2` | - |
-| Europe (Frankfurt) | `eu-central-1`| - |
-| Europe (Ireland) | `eu-west-1` | - |
-| Europe (Stockholm) | `eu-north-1` | - |
-| Asia Pacific (Sydney) | `ap-southeast-2` | Available from v0.1.0 |
-| Canada (Central) | `ca-central-1` | Available from v0.1.0 |
-| South America (São Paulo) | `sa-east-1` | Available from v0.2.0 |
+| Region Name               | Region Code      | Notes                 |
+|---------------------------|------------------|-----------------------|
+| US East (N. Virginia)     | `us-east-1`      | -                     |
+| US East (Ohio)            | `us-east-2`      | -                     |
+| US West (N. California)   | `us-west-1`      | -                     |
+| US West (Oregon)          | `us-west-2`      | -                     |
+| Europe (Frankfurt)        | `eu-central-1`   | -                     |
+| Europe (Ireland)          | `eu-west-1`      | -                     |
+| Europe (Stockholm)        | `eu-north-1`     | -                     |
+| Asia Pacific (Sydney)     | `ap-southeast-2` | Available from v0.1.0 |
+| Canada (Central)          | `ca-central-1`   | Available from v0.1.0 |
+| South America (São Paulo) | `sa-east-1`      | Available from v0.2.0 |
 
 **NOTE:** If your AWS region is not in the list, please reach out to Logz.io's support or open an issue in this repo.
 
@@ -206,6 +208,9 @@ Note: the dependencies layer is deprecated.
 
 ### Changelog:
 
+- **0.3.0**:
+  - Enrich logs with the following fields: `lambda_function_name`, `aws_region`.
+  - Allow adding custom fields with `CUSTOM_FIELDS` env var.
 - **0.2.0**:
   - Allow parsing log into fields. To learn more see [parsing logs](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#parsing-logs) section.
   - Allow nested JSON within logs. To learn more see [nested fields](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#nested-fields) section.
