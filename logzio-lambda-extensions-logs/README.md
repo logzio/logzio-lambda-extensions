@@ -60,6 +60,8 @@ aws lambda update-function-configuration \
     --environment "Variables={}"
 ```
 
+Your lambda logs will appear under the type `lambda-extension-logs`.
+
 **NOTE:** This command overwrites the existing function configuration. If you already have your own layers and environment variables for your function, include them in the list.
 
 
@@ -96,6 +98,8 @@ Add the environment variables to the function, according to the [**Environment v
 ##### Run the function
 
 Run the function. It may take more than one run of the function for the logs to start shipping to your Logz.io account.
+
+Your lambda logs will appear under the type `lambda-extension-logs`.
 
 #### Deleting the extension
 
