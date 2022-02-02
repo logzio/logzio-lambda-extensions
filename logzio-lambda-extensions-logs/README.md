@@ -98,6 +98,7 @@ Add the environment variables to the function, according to the [**Environment v
 ##### Run the function
 
 Run the function. It may take more than one run of the function for the logs to start shipping to your Logz.io account.
+
 Your lambda logs will appear under the type `lambda-extension-logs`.
 
 #### Deleting the extension
