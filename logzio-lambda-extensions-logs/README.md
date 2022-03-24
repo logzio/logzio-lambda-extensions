@@ -146,7 +146,7 @@ my_app: cool app
 my_message: The sky is so blue
 ```
 
-To learn more about grok, read the [grok library](https://github.com/vjeantet/grok), [Logz.io's blog post](https://logz.io/blog/logstash-grok/), or watch [this introduction to grok video](https://logz.io/learn/introduction-to-the-logstash-grok/).
+This project uses an external module for its Grok parsing. To learn more about it, see the [grok library repo](https://github.com/vjeantet/grok).
 
 ### Nested fields
 
