@@ -43,11 +43,11 @@ aws lambda update-function-configuration \
 
 **Note:** this command overwrites the existing function configuration. If you already have your own layers and environment variables for your function, list them as well.
 
-| Placeholder | Description |
-|---|---|
-| `<<FUNCTION-NAME>>` |  Name of the Lambda function you want to monitor. |
-| `<<LAYERS>>` | A space-separated list of function layers to add to the function's execution environment. Specify each layer by its ARN, including the version.  For the ARN, see the [**Lambda extension versions** table](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#lambda-extension-versions).|
-| `<<ENV-VARS>>`  | Key-value pairs containing environment variables that are accessible from function code during execution. Should appear in the following format: `KeyName1=string,KeyName2=string`.  For a list of all the environment variables for the extension, see the [**Lambda environment variables** table](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#environment-variables).|
+| Placeholder | Description                                                                                                                                                                                                                                                                                                                                                                                                             |
+|---|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `<<FUNCTION-NAME>>` | Name of the Lambda function you want to monitor.                                                                                                                                                                                                                                                                                                                                                                        |
+| `<<LAYERS>>` | A space-separated list of function layers to add to the function's execution environment. Specify each layer by its ARN, including the version.  For the ARN, see the [**ARNs** table](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#arns).                                                                                                                                |
+| `<<ENV-VARS>>`  | Key-value pairs containing environment variables that are accessible from function code during execution. Should appear in the following format: `KeyName1=string,KeyName2=string`.  For a list of all the environment variables for the extension, see the [**Lambda environment variables** table](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#environment-variables). |
 
 ##### Run the function
 
@@ -88,7 +88,7 @@ aws lambda update-function-configuration \
 2. In the page for the function, scroll down to the `Layers` section and choose `Add Layer`.
    ![Add layer](https://dytvr9ot2sszz.cloudfront.net/logz-docs/lambda_extensions/lambda-x_1-2.jpg)
 
-3. Select the `Specify an ARN` option, then choose the ARN of the extension with the region code that matches your Lambda Function region from the [**Lambda extension versions** table](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#lambda-extension-versions), and click the `Add` button.
+3. Select the `Specify an ARN` option, then choose the ARN of the extension with the region code that matches your Lambda Function region from the [**ARNs** table](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#arns), and click the `Add` button.
    ![Add ARN extension](https://dytvr9ot2sszz.cloudfront.net/logz-docs/lambda_extensions/lambda-x_1-3.jpg)
 
 ##### Configure the extension parameters
@@ -178,7 +178,7 @@ message_nested.field2: val2
 | `LOGS_FORMAT`           | Must be set with `GROK_PATTERNS`. Use this if you want to parse your logs into fields. The format in which the logs will appear, in accordance to grok conventions. To understand more see the [parsing logs](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#parsing-logs) section.             | -                |
 | `CUSTOM_FIELDS`         | Include additional fields with every message sent, formatted as `fieldName1=fieldValue1,fieldName2=fieldValue2` (**NO SPACES**). A custom key that clashes with a key from the log itself will be ignored.                                                                                                                                  | -                |
 
-### Available AWS regions
+### ARNs
 
 | Region Name               | Region Code      | AWS ARN                                                                        |
 |---------------------------|------------------|--------------------------------------------------------------------------------|
