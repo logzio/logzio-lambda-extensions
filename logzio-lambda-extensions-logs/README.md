@@ -172,11 +172,11 @@ message_nested.field2: val2
 | `LOGZIO_LOGS_TOKEN`     | Your Logz.io log shipping [token](https://app.logz.io/#/dashboard/settings/manage-tokens/data-shipping).                                                                                                                                                                                                                                    | Required         |
 | `LOGZIO_LISTENER`       | Your  Logz.io listener address, with port 8070 (http) or 8071 (https). For example: `https://listener.logz.io:8071`                                                                                                                                                                                                                         | Required         |
 | `LOGS_EXT_LOG_LEVEL`    | Log level of the extension. Can be set to one of the following: `debug`, `info`, `warn`, `error`, `fatal`, `panic`.                                                                                                                                                                                                                         | Default: `info`  |
-| `ENABLE_EXTENSION_LOGS` | Set to `true` if you wish the extension logs will be shipped to your Logz.io account.                                                                                                                                                                                                                                                       | Default: `false` |
 | `ENABLE_PLATFORM_LOGS`  | The platform log captures runtime or execution environment errors. Set to `true` if you wish the platform logs will be shipped to your Logz.io account.                                                                                                                                                                                     | Default: `false` |
 | `GROK_PATTERNS`         | Must be set with `LOGS_FORMAT`. Use this if you want to parse your logs into fields. A minified JSON list that contains the field name and the regex that will match the field. To understand more see the [parsing logs](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#parsing-logs) section. | -                |
 | `LOGS_FORMAT`           | Must be set with `GROK_PATTERNS`. Use this if you want to parse your logs into fields. The format in which the logs will appear, in accordance to grok conventions. To understand more see the [parsing logs](https://github.com/logzio/logzio-lambda-extensions/tree/main/logzio-lambda-extensions-logs#parsing-logs) section.             | -                |
 | `CUSTOM_FIELDS`         | Include additional fields with every message sent, formatted as `fieldName1=fieldValue1,fieldName2=fieldValue2` (**NO SPACES**). A custom key that clashes with a key from the log itself will be ignored.                                                                                                                                  | -                |
+
 
 ### Lambda extension versions
 
@@ -205,13 +205,17 @@ message_nested.field2: val2
 **NOTE:** If your AWS region is not in the list, please reach out to Logz.io's support or open an issue in this repo.
 
 ### ARN for extension dependencies - DEPRECATED
+
 Note: the dependencies layer is deprecated.
+
 |Compatible with extension versions | Imports | AWS ARN |
 | --- | --- | --- |
 | 0.0.1 | `requests` | `arn:aws:lambda:<<YOUR-AWS-REGION-CODE>>:486140753397:layer:LogzioLambdaExtensionLogsLibs:1` |
 
 ### Changelog:
 
+- **0.3.1**:
+  - Remove ability to send extension logs.
 - **0.3.0**:
   - Enrich logs with the following fields: `lambda_function_name`, `aws_region`.
   - Allow adding custom fields with `CUSTOM_FIELDS` env var.

@@ -173,10 +173,5 @@ func getEventTypesToRegister() []logsapi.EventType {
 		eventTypes = append(eventTypes, logsapi.Platform)
 	}
 
-	enableExtensionLogs := utils.GetEnableExtensionLogs()
-	if enableExtensionLogs {
-		eventTypes = append(eventTypes, logsapi.Extension)
-	}
-
 	return eventTypes
 }

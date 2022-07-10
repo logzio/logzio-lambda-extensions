@@ -14,7 +14,6 @@ const (
 	envLogzioLogsToken         = "LOGZIO_LOGS_TOKEN"
 	envLogzioListener          = "LOGZIO_LISTENER"
 	envEnablePlatformLogs      = "ENABLE_PLATFORM_LOGS"
-	envEnableExtensionLogs     = "ENABLE_EXTENSION_LOGS"
 	envExtensionLogLevel       = "LOGS_EXT_LOG_LEVEL"
 	envGrokPatterns            = "GROK_PATTERNS"
 	envLogsFormat              = "LOGS_FORMAT"
@@ -60,21 +59,6 @@ func GetEnablePlatformLogs() bool {
 	if err != nil {
 		logger.Warningf("Could not parse env var %s, reverting to default value (%t)", envEnablePlatformLogs, defaultEnablePlatformLogs)
 		return defaultEnablePlatformLogs
-	}
-
-	return enable
-}
-
-func GetEnableExtensionLogs() bool {
-	enableStr := os.Getenv(envEnableExtensionLogs)
-	if len(enableStr) == 0 {
-		return defaultEnableExtensionLogs
-	}
-
-	enable, err := strconv.ParseBool(enableStr)
-	if err != nil {
-		logger.Warningf("Could not parse env var %s, reverting to default value (%t)", envEnableExtensionLogs, defaultEnableExtensionLogs)
-		return defaultEnableExtensionLogs
 	}
 
 	return enable
