@@ -18,6 +18,7 @@ const (
 	envGrokPatterns            = "GROK_PATTERNS"
 	envLogsFormat              = "LOGS_FORMAT"
 	envCustomFields            = "CUSTOM_FIELDS"
+	envFlattenNestedMessage    = "FLATTEN_NESTED_MESSAGE"
 	envAwsLambdaFunctionName   = "AWS_LAMBDA_FUNCTION_NAME" // Reserved AWS env var
 	envAwsRegion               = "AWS_REGION"               //Reserved AWS env var
 	LogLevelDebug              = "debug"
@@ -111,4 +112,8 @@ func GetCustomFields() map[string]string {
 
 	logger.Debugf("detected %d custom fields", len(customFields))
 	return customFields
+}
+
+func GetFlattenNestedMessage() bool {
+	return strings.EqualFold("true", os.Getenv(FLATTEN_NESTED_MESSAGE))
 }
