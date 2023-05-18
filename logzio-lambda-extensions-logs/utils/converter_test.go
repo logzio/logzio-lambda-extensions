@@ -51,7 +51,7 @@ func TestConverterSimpleJsonLogAndFlattenNestedMessage(t *testing.T) {
 	assert.Equal(t, lambdaLog[utils.FldLambdaTime], logzioLog[utils.FldLogzioTimestamp])
 	assert.Equal(t, lambdaLog[utils.FldLambdaType], logzioLog[utils.FldLogzioLambdaType])
 	assert.Equal(t, "hello", logzioLog["message"])
-	assert.Equal(t, "some", logzioLog["metadata"].(map[string]interface{})["object"])
+	assert.Equal(t, "object", logzioLog["some"].(map[string]interface{})["metadata"])
 }
 
 func TestConverterGrokFormattedLog(t *testing.T) {
