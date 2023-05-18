@@ -115,5 +115,5 @@ func GetCustomFields() map[string]string {
 }
 
 func GetFlattenNestedMessage() bool {
-	return strings.EqualFold("true", os.Getenv(FLATTEN_NESTED_MESSAGE))
+	return strings.EqualFold("true", os.Getenv(envFlattenNestedMessage))
 }
