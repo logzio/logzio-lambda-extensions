@@ -1,10 +1,6 @@
 name: Tests
 
-on: 
-  pull_request: 
-    types: [opened, synchronize]
-  push:
-    branches: ['main']
+on: [pull_request]
 
 jobs:
   test:
@@ -25,4 +21,3 @@ jobs:
       - name: Test
         working-directory: ./logzio-lambda-extensions-logs/utils
         run: go test -v -race -covermode=atomic -coverprofile=coverage.out
-
