@@ -204,6 +204,7 @@ message_nested.field2: val2
 
 | Version | Supported Runtimes                                                                                                                                         |
 |---------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 0.3.2   | All runtimes                                                                                                                                               |
 | 0.3.1   | All runtimes                                                                                                                                               |
 | 0.3.0   | `.NET Core 3.1`, `Java 11`, `Java 8`, `Node.js 14.x`, `Node.js 12.x`, `Python 3.9`, `Python 3.8`, `Python 3.7`, `Ruby 2.7`, `Custom runtime`               |
 | 0.2.0   | `.NET Core 3.1`, `Java 11`, `Java 8`, `Node.js 14.x`, `Node.js 12.x`, `Python 3.9`, `Python 3.8`, `Python 3.7`, `Ruby 2.7`, `Custom runtime`               |
@@ -214,6 +215,8 @@ message_nested.field2: val2
 
 ### Changelog:
 
+- **0.3.2**:
+  - Bug fix for grok patterns - fields parsed incorrectly.
 - **0.3.1**:
   - Remove ability to send extension logs.
 - **0.3.0**:
