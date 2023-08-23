@@ -135,9 +135,8 @@ func addGrokPatterns(g *grok.Grok, patternsStr, logFormat string) error {
 }
 
 func addFields(logsMap map[string]interface{}, fields map[string]string) {
-	var nested map[string]interface{}
 	for key, val := range fields {
-		logger.Debugf("adding field: %s to logzio log", key)
+		var nested map[string]interface{}
 		// Trying to see if the string is in JSON format.
 		// If so - add the nested version to the log
 		err := json.Unmarshal([]byte(fmt.Sprintf(`%s`, val)), &nested)
@@ -147,6 +146,7 @@ func addFields(logsMap map[string]interface{}, fields map[string]string) {
 			logger.Debugf("detected JSON: %s", val)
 		}
 
+		logger.Debugf("adding field: %s to logzio log with value: %s", key, val)
 		if nested != nil && len(nested) > 0 {
 			logsMap[key] = nested
 		} else {

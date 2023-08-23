@@ -194,39 +194,42 @@ foo: bar
 
 | Region Name               | Region Code      | AWS ARN                                                                        |
 |---------------------------|------------------|--------------------------------------------------------------------------------|
-| US East (N. Virginia)     | `us-east-1`      | `arn:aws:lambda:us-east-1:486140753397:layer:LogzioLambdaExtensionLogs:5`      |
-| US East (Ohio)            | `us-east-2`      | `arn:aws:lambda:us-east-2:486140753397:layer:LogzioLambdaExtensionLogs:5`      |
-| US West (N. California)   | `us-west-1`      | `arn:aws:lambda:us-west-1:486140753397:layer:LogzioLambdaExtensionLogs:5`      |
-| US West (Oregon)          | `us-west-2`      | `arn:aws:lambda:us-west-2:486140753397:layer:LogzioLambdaExtensionLogs:5`      |
-| Europe (Frankfurt)        | `eu-central-1`   | `arn:aws:lambda:eu-central-1:486140753397:layer:LogzioLambdaExtensionLogs:5`   |
-| Europe (Ireland)          | `eu-west-1`      | `arn:aws:lambda:eu-west-1:486140753397:layer:LogzioLambdaExtensionLogs:5`      |
-| Europe (Stockholm)        | `eu-north-1`     | `arn:aws:lambda:eu-north-1:486140753397:layer:LogzioLambdaExtensionLogs:5`     |
-| Asia Pacific (Sydney)     | `ap-southeast-2` | `arn:aws:lambda:ap-southeast-2:486140753397:layer:LogzioLambdaExtensionLogs:5` |
-| Canada (Central)          | `ca-central-1`   | `arn:aws:lambda:ca-central-1:486140753397:layer:LogzioLambdaExtensionLogs:5`   |
-| South America (São Paulo) | `sa-east-1`      | `arn:aws:lambda:sa-east-1:486140753397:layer:LogzioLambdaExtensionLogs:6`      |
-| Asia Pacific (Tokyo)      | `ap-northeast-1` | `arn:aws:lambda:ap-northeast-1:486140753397:layer:LogzioLambdaExtensionLogs:1` |
-| Asia Pacific (Singapore)  | `ap-southeast-1` | `arn:aws:lambda:ap-southeast-1:486140753397:layer:LogzioLambdaExtensionLogs:1` |
-| Asia Pacific (Mumbai)     | `ap-south-1`     | `arn:aws:lambda:ap-south-1:486140753397:layer:LogzioLambdaExtensionLogs:1`     |
-| Asia Pacific (Osaka)      | `ap-northeast-3` | `arn:aws:lambda:ap-northeast-3:486140753397:layer:LogzioLambdaExtensionLogs:1` |
-| Asia Pacific (Seoul)      | `ap-northeast-2` | `arn:aws:lambda:ap-northeast-2:486140753397:layer:LogzioLambdaExtensionLogs:1` |
-| Europe (London)           | `eu-west-2`      | `arn:aws:lambda:eu-west-2:486140753397:layer:LogzioLambdaExtensionLogs:2`      |
-| Europe (Paris)            | `eu-west-3`      | `arn:aws:lambda:eu-west-3:486140753397:layer:LogzioLambdaExtensionLogs:1`      |
+| US East (N. Virginia)     | `us-east-1`      | `arn:aws:lambda:us-east-1:486140753397:layer:LogzioLambdaExtensionLogs:6`      |
+| US East (Ohio)            | `us-east-2`      | `arn:aws:lambda:us-east-2:486140753397:layer:LogzioLambdaExtensionLogs:6`      |
+| US West (N. California)   | `us-west-1`      | `arn:aws:lambda:us-west-1:486140753397:layer:LogzioLambdaExtensionLogs:6`      |
+| US West (Oregon)          | `us-west-2`      | `arn:aws:lambda:us-west-2:486140753397:layer:LogzioLambdaExtensionLogs:6`      |
+| Europe (Frankfurt)        | `eu-central-1`   | `arn:aws:lambda:eu-central-1:486140753397:layer:LogzioLambdaExtensionLogs:6`   |
+| Europe (Ireland)          | `eu-west-1`      | `arn:aws:lambda:eu-west-1:486140753397:layer:LogzioLambdaExtensionLogs:6`      |
+| Europe (Stockholm)        | `eu-north-1`     | `arn:aws:lambda:eu-north-1:486140753397:layer:LogzioLambdaExtensionLogs:6`     |
+| Asia Pacific (Sydney)     | `ap-southeast-2` | `arn:aws:lambda:ap-southeast-2:486140753397:layer:LogzioLambdaExtensionLogs:6` |
+| Canada (Central)          | `ca-central-1`   | `arn:aws:lambda:ca-central-1:486140753397:layer:LogzioLambdaExtensionLogs:6`   |
+| South America (São Paulo) | `sa-east-1`      | `arn:aws:lambda:sa-east-1:486140753397:layer:LogzioLambdaExtensionLogs:7`      |
+| Asia Pacific (Tokyo)      | `ap-northeast-1` | `arn:aws:lambda:ap-northeast-1:486140753397:layer:LogzioLambdaExtensionLogs:2` |
+| Asia Pacific (Singapore)  | `ap-southeast-1` | `arn:aws:lambda:ap-southeast-1:486140753397:layer:LogzioLambdaExtensionLogs:2` |
+| Asia Pacific (Mumbai)     | `ap-south-1`     | `arn:aws:lambda:ap-south-1:486140753397:layer:LogzioLambdaExtensionLogs:2`     |
+| Asia Pacific (Osaka)      | `ap-northeast-3` | `arn:aws:lambda:ap-northeast-3:486140753397:layer:LogzioLambdaExtensionLogs:2` |
+| Asia Pacific (Seoul)      | `ap-northeast-2` | `arn:aws:lambda:ap-northeast-2:486140753397:layer:LogzioLambdaExtensionLogs:2` |
+| Europe (London)           | `eu-west-2`      | `arn:aws:lambda:eu-west-2:486140753397:layer:LogzioLambdaExtensionLogs:3`      |
+| Europe (Paris)            | `eu-west-3`      | `arn:aws:lambda:eu-west-3:486140753397:layer:LogzioLambdaExtensionLogs:2`      |
 
 
 ### Lambda extension versions
 
-| Version | Supported Runtimes                                                                                                                                         |
-|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 0.3.1   | All runtimes                                                                                                                                               |
-| 0.3.0   | `.NET Core 3.1`, `Java 11`, `Java 8`, `Node.js 14.x`, `Node.js 12.x`, `Python 3.9`, `Python 3.8`, `Python 3.7`, `Ruby 2.7`, `Custom runtime`               |
-| 0.2.0   | `.NET Core 3.1`, `Java 11`, `Java 8`, `Node.js 14.x`, `Node.js 12.x`, `Python 3.9`, `Python 3.8`, `Python 3.7`, `Ruby 2.7`, `Custom runtime`               |
-| 0.1.0   | `.NET Core 3.1`, `Java 11`, `Java 8`, `Node.js 14.x`, `Node.js 12.x`, `Node.js 10.x`, `Python 3.8`, `Python 3.7`, `Ruby 2.7`, `Ruby 2.5`, `Custom runtime` |
-| 0.0.1   | `Python 3.7`, `Python 3.8`                                                                                                                                 |
+| Version | Supported Runtimes                                                                                                                                                                 |
+|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 0.3.2   | `.NET 6`, `Go 1.x`, `Java 17`, `Node.js 18`, `Python 3.11`, `Ruby 3.2`, `Java 11`, `Java 8`, `Node.js 16`, `Python 3.10`, `Python 3.9`, `Python 3.8`, `Ruby 2.7`, `Custom Runtime` |
+| 0.3.1   | All runtimes                                                                                                                                                                       |
+| 0.3.0   | `.NET Core 3.1`, `Java 11`, `Java 8`, `Node.js 14.x`, `Node.js 12.x`, `Python 3.9`, `Python 3.8`, `Python 3.7`, `Ruby 2.7`, `Custom runtime`                                       |
+| 0.2.0   | `.NET Core 3.1`, `Java 11`, `Java 8`, `Node.js 14.x`, `Node.js 12.x`, `Python 3.9`, `Python 3.8`, `Python 3.7`, `Ruby 2.7`, `Custom runtime`                                       |
+| 0.1.0   | `.NET Core 3.1`, `Java 11`, `Java 8`, `Node.js 14.x`, `Node.js 12.x`, `Node.js 10.x`, `Python 3.8`, `Python 3.7`, `Ruby 2.7`, `Ruby 2.5`, `Custom runtime`                         |
+| 0.0.1   | `Python 3.7`, `Python 3.8`                                                                                                                                                         |
 
 **NOTE:** If your AWS region is not in the list, please reach out to Logz.io's support or open an issue in this repo.
 
 ### Changelog:
 
+- **0.3.2**:
+  - Bug fix for grok patterns - fields parsed incorrectly.
 - **0.3.1**:
   - Remove ability to send extension logs.
 - **0.3.0**:
