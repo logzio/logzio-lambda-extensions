@@ -37,6 +37,23 @@ func TestConverterSimpleJsonLog(t *testing.T) {
 	assert.Equal(t, "bar", logzioLog[utils.FldLogzioMsgNested].(map[string]interface{})["foo"])
 }
 
+func TestConverterSimpleJsonLogAndFlattenNestedMessage(t *testing.T) {
+	os.Setenv("FLATTEN_NESTED_MESSAGE", "true")
+	lambdaLog := map[string]interface{}{
+		utils.FldLambdaTime:   "2021-11-11T08:28:16.870Z",
+		utils.FldLambdaType:   "function",
+		utils.FldLambdaRecord: "{\"message\": \"hello\", \"some\": {\"metadata\": \"object\"}}\n",
+	}
+
+	logzioLog := utils.ConvertLambdaLogToLogzioLog(lambdaLog)
+	assert.NotNil(t, logzioLog)
+	assert.NotZero(t, len(logzioLog))
+	assert.Equal(t, lambdaLog[utils.FldLambdaTime], logzioLog[utils.FldLogzioTimestamp])
+	assert.Equal(t, lambdaLog[utils.FldLambdaType], logzioLog[utils.FldLogzioLambdaType])
+	assert.Equal(t, "hello", logzioLog["message"])
+	assert.Equal(t, "object", logzioLog["some"].(map[string]interface{})["metadata"])
+}
+
 func TestConverterGrokFormattedLog(t *testing.T) {
 	os.Setenv("GROK_PATTERNS", "{\"app_name\":\"cool app\",\"my_message\":\".*\"}")
 	os.Setenv("LOGS_FORMAT", "%{app_name:my_app} : %{my_message:my_message}")

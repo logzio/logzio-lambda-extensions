@@ -63,7 +63,15 @@ func ConvertLambdaLogToLogzioLog(lambdaLog map[string]interface{}) map[string]in
 				logzioLog[FldLogzioMsg] = lambdaLog[FldLambdaRecord]
 			} else {
 				logger.Debugf("detected JSON: %s", lambdaLog[FldLambdaRecord])
-				logzioLog[FldLogzioMsgNested] = nested
+				if GetFlattenNestedMessage() {
+					if len(nested) > 0 {			
+						for key, val := range nested {
+							logzioLog[key] = val
+						}
+					}
+				} else {
+					logzioLog[FldLogzioMsgNested] = nested
+				}
 			}
 		}
 	default:
