@@ -118,32 +118,61 @@ If you need to use a custom pattern, you can use the environment variables `GROK
 For logs that are formatted like this:
 
 ```python
-%(app_name)s : %(message)s
+<<timestamp>> <<app_name>>: <<message>>
+# Examples
+May 04 2024 10:48:34.244 my_app: an awesome message
+May 04 2024 10:50:46.532 logzio_sender: Successfully sent bulk to logz.io, size: 472
 ```
 
-we will use `cool app` as the `app_name` and the `message` will have strings containing whitespaces, letters and numbers.
-
-In Logz.io we wish to have `app_name`, `message` in their own fields, named `my_app` and `my_message`, respectively.
+In Logz.io we wish to have `timestamp`, `app_name` and `message` in their own fields.  
 To do so, we'll set the environment variables as follows:
 
 ##### GROK_PATTERNS
 
-The `GROK_PATTERNS` variable should be in a JSON format.
-The key is used as the pattern name, and the value should be the regex that captures the pattern.  
-In our case, while `app_name` always stays `cool app`, we don't know what `message` will be, so we need to set `GROK_PATTERNS` as: `{"app_name":"cool app","message":".*"}`
+The `GROK_PATTERNS` variable contains definitions of custom grok patterns and should be in a JSON format.   
+- key - is the custom pattern name. 
+- value - the regex that captures the pattern.
+
+In our example:
+- `timestamp` - matching the regex `\w+ \d{2} \d{4} \d{2}:\d{2}:\d{2}\.\d{3}`.
+- `app_name` - always a not space, so matching `\S+`.
+- `message` -  have strings containing whitespaces, letters and numbers. So matching `.*`.
+
+For the regex that matches `app_name` and `message` there are built in grok patterns (we'll see in `LOGS_FORMAT` explanation), so we only need to define custom pattern for our `timestamp`.  
+Meaning we can set `GROK_PATTERNS` as: 
+``` json
+{"MY_CUSTOM_TIMESTAMP":"\\w+ \\d{2} \\d{4} \\d{2}:\\d{2}:\\d{2}\\.\\d{3}"}
+```
 
 ##### LOGS_FORMAT
 
-The `LOGS_FORMAT` variable will contain the same format as the logs, according to the pattern names that we used in `GROK_PATTERNS`.  
-The variable should be in a grok format for each pattern name: `${PATTERN_NAME:FIELD_NAME}` where `PATTERN_NAME` is the pattern name from `GROK_PATTERNS`, and `FIELD_NAME` is the name of the field you want the pattern to be parsed to.  
-**Note** that the `FIELD_NAME` cannot contain a dot (`.`) in it.
-In our case, we want `app_name` to appear under the field `my_app`, and `message` to appear under the field `my_message`. Since we know that the logs format is as mentioned above, we will set `LOGS_FORMAT` as: `%{app_name:my_app} : %{message:my_message}`.
-
-The logs that match the configuration above will appear in Logz.io with the fields `lambda.record.my_app`, `lambda.record.my_message`.  
-The log: `"cool app : The sky is so blue"`, will be parsed to look like this:
+The `LOGS_FORMAT` variable contains the full grok patternt that will match the format of the logs, using known patterns and the custom patterns that were defined in `GROK_PATTERNS` (if defined).  
+The variable should be in a grok format: 
 ```
-my_app: cool app
-my_message: The sky is so blue
+%{GROK_PATTERN_NAME:WANTED_FIELD_NAME}
+```
+**Note**: the `WANTED_FIELD_NAME` cannot contain a dot (`.`) in it.
+
+In our example: 
+- `timestamp` - matching the custom pattern we defined previously `MY_CUSTOM_TIMESTAMP`.
+- `app_name` - is matching the known grok pattern `NOTSPACE`.
+- `message` -  is matching the known grok pattern `GREEDYDATA`.
+
+So we will set `LOGS_FORMAT` as: 
+```
+^%{MY_CUSTOM_TIMESTAMP:timestamp} %{NOTSPACE:app_name}: %{GREEDYDATA:message}
+```
+
+The log example from above: 
+```
+May 04 2024 10:48:34.244 my_app: an awesome message
+```
+Will be parsed to look like this:
+
+```
+timestamp: May 04 2024 10:48:34.244
+app_name: my_app
+message: an awesome message
 ```
 
 This project uses an external module for its Grok parsing. To learn more about it, see the [grok library repo](https://github.com/vjeantet/grok).
