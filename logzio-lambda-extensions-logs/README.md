@@ -179,7 +179,7 @@ This project uses an external module for its Grok parsing. To learn more about i
 
 ### Nested fields
 
-As of v0.2.0 the extension can detect if a log is in a JSON format, and to parse the fields to appear as nested fields in the Logz.io app.
+As of v0.2.0, by default, the extension can detect if a log is in a JSON format, and to parse the fields to appear as nested fields in the Logz.io app.
 For example, the following log:
 
 ```
@@ -190,6 +190,19 @@ Will appear under the fields:
 ```
 message_nested.foo: bar
 message_nested.field2: val2
+```
+
+You can also use set the `FLATTEN_NESTED_MESSAGE` environment variable to make it so that the log fields will be set as fields at the root of the object instead of under `message_nested`. It is useful in cases where the passed object is in fact meant to be that of a message plus metadata fields.  
+For example, the following log:
+
+```
+{ "message": "hello", "foo": "bar" }
+```
+
+Will appear under the fields:
+```
+message: hello
+foo: bar
 ```
 
 **Note:** The user must insert a valid JSON. Sending a dictionary or any key-value data structure that is not in a JSON format will cause the log to be sent as a string.
