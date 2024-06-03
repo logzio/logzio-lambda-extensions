@@ -16,9 +16,12 @@ jobs:
         with:
           go-version: 1.22
       - name: Before install
+        working-directory: ./logzio-lambda-extensions-logs
         run: |
-          go get golang.org/x/tools/cmd/cover
-          go get github.com/mattn/goveralls
+          go get -u
+          go mod tidy
+          go install golang.org/x/tools/cmd/cover@v0.1.0
+          go install github.com/mattn/goveralls@latest
       - name: Test
         working-directory: ./logzio-lambda-extensions-logs/utils
         run: go test -v -race -covermode=atomic -coverprofile=coverage.out
