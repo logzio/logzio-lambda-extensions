@@ -37,8 +37,8 @@ func TestConverterSimpleJsonLog(t *testing.T) {
 	assert.Equal(t, "bar", logzioLog[utils.FldLogzioMsgNested].(map[string]interface{})["foo"])
 }
 
-func TestConverterSimpleJsonLogAndFlattenNestedMessage(t *testing.T) {
-	os.Setenv("FLATTEN_NESTED_MESSAGE", "true")
+func TestConverterSimpleJsonLogAndJsonFieldsUnderRoot(t *testing.T) {
+	os.Setenv("JSON_FIELDS_UNDER_ROOT", "true")
 	lambdaLog := map[string]interface{}{
 		utils.FldLambdaTime:   "2021-11-11T08:28:16.870Z",
 		utils.FldLambdaType:   "function",

@@ -18,7 +18,7 @@ const (
 	envGrokPatterns            = "GROK_PATTERNS"
 	envLogsFormat              = "LOGS_FORMAT"
 	envCustomFields            = "CUSTOM_FIELDS"
-	envFlattenNestedMessage    = "FLATTEN_NESTED_MESSAGE"
+	envJsonFieldsUnderRoot     = "JSON_FIELDS_UNDER_ROOT"
 	envAwsLambdaFunctionName   = "AWS_LAMBDA_FUNCTION_NAME" // Reserved AWS env var
 	envAwsRegion               = "AWS_REGION"               //Reserved AWS env var
 	LogLevelDebug              = "debug"
@@ -114,6 +114,6 @@ func GetCustomFields() map[string]string {
 	return customFields
 }
 
-func GetFlattenNestedMessage() bool {
-	return strings.EqualFold("true", os.Getenv(envFlattenNestedMessage))
+func GetJsonFieldsUnderRoot() bool {
+	return strings.EqualFold("true", os.Getenv(envJsonFieldsUnderRoot))
 }
