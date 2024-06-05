@@ -18,6 +18,7 @@ const (
 	envGrokPatterns            = "GROK_PATTERNS"
 	envLogsFormat              = "LOGS_FORMAT"
 	envCustomFields            = "CUSTOM_FIELDS"
+	envJsonFieldsUnderRoot     = "JSON_FIELDS_UNDER_ROOT"
 	envAwsLambdaFunctionName   = "AWS_LAMBDA_FUNCTION_NAME" // Reserved AWS env var
 	envAwsRegion               = "AWS_REGION"               //Reserved AWS env var
 	LogLevelDebug              = "debug"
@@ -111,4 +112,8 @@ func GetCustomFields() map[string]string {
 
 	logger.Debugf("detected %d custom fields", len(customFields))
 	return customFields
+}
+
+func GetJsonFieldsUnderRoot() bool {
+	return strings.EqualFold("true", os.Getenv(envJsonFieldsUnderRoot))
 }
