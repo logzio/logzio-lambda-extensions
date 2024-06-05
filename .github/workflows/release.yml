@@ -19,7 +19,7 @@ jobs:
       # AMD Build
       - name: Build AMD ZIP File
         working-directory: ./logzio-lambda-extensions-logs
-        runs: ./build-zip.sh
+        run: ./build-zip.sh
       - name: Setup AWS
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -40,7 +40,7 @@ jobs:
       # ARM Build
       - name: Build ARM ZIP File
         working-directory: ./logzio-lambda-extensions-logs
-        runs: ./build-arm-zip.sh
+        run: ./build-arm-zip.sh
       - name: Deploy ARM Layer to AWS region ${{ matrix.aws-region }}
         working-directory: ./logzio-lambda-extensions-logs/bin
         run: |
