@@ -16,6 +16,7 @@ jobs:
         with:
           go-version: 1.22
       - name: Setup AWS
+        id: setup-aws
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -23,54 +24,63 @@ jobs:
           aws-region: ${{ matrix.aws-region }}
       # AMD Build
       - name: Build AMD ZIP File
+        id: build-amd-zip
         working-directory: ./logzio-lambda-extensions-logs
         run: ./build-zip.sh
       - name: Publish AMD64 Layer Version
+        if: (steps.setup-aws.outcome == 'success' && steps.build-amd-zip.outcome == 'success')
+        id: publish-amd64
         working-directory: ./logzio-lambda-extensions-logs/bin
         run: |
-          LAYER_VERSION=$(aws lambda publish-layer-version \
-            --layer-name LogzioLambdaExtensionLogs \
-            --description "Extension for shipping Lambda logs to Logz.io ${{ github.event.release.tag_name }}." \
-            --zip-file "fileb://extension.zip" \
-            --region ${{ matrix.aws-region }} \
-            --compatible-runtimes dotnet8 python3.12 provided.al2023 dotnet6 java11 java17 java8.al2 nodejs16.x nodejs18.x python3.10 python3.11 python3.8 python3.9 ruby3.2 provided.al2 \
-            --compatible-architectures x86_64 \
-            --output text --query 'Version')
-          echo "Layer Version: $LAYER_VERSION"  # Save the version for next step
+          AMD_LAYER_VERSION=$(aws lambda publish-layer-version \
+          --layer-name LogzioLambdaExtensionLogs \
+          --description "Extension for shipping Lambda logs to Logz.io ${{ github.event.release.tag_name }}." \
+          --zip-file "fileb://extension.zip" \
+          --region ${{ matrix.aws-region }} \
+          --compatible-runtimes dotnet8 python3.12 provided.al2023 dotnet6 java11 java17 java8.al2 nodejs16.x nodejs18.x python3.10 python3.11 python3.8 python3.9 ruby3.2 provided.al2 \
+          --compatible-architectures x86_64 \
+          --output text --query 'Version')
+          echo "AMD_LAYER_VERSION=$AMD_LAYER_VERSION" >> "$GITHUB_OUTPUT" # Save the version for next step
+
       - name: Grant Public GetLayerVersion Permission for AMD64
+        if: (steps.setup-aws.outcome == 'success' && steps.publish-amd64.outcome == 'success')
         working-directory: ./logzio-lambda-extensions-logs/bin
         run: |
           aws lambda add-layer-version-permission \
-            --layer-name LogzioLambdaExtensionLogs \
-            --version-number ${{ steps.publish.outputs.LAYER_VERSION }} \
-            --statement-id public-access-statement \
-            --principal '*' \
-            --action lambda:GetLayerVersion \
-            --region ${{ matrix.aws-region }}
+          --layer-name LogzioLambdaExtensionLogs \
+          --version-number ${{ steps.publish-amd64.outputs.AMD_LAYER_VERSION }} \
+          --statement-id public-access-statement \
+          --principal '*' \
+          --action lambda:GetLayerVersion \
+          --region ${{ matrix.aws-region }}
 
       # ARM Build
       - name: Build ARM ZIP File
+        id: build-arm-zip
         working-directory: ./logzio-lambda-extensions-logs
         run: chmod +x ./build-arm-zip.sh
       - name: Publish ARM64 Layer Version
+        id: publish-arm64
+        if: (steps.setup-aws.outcome == 'success' && steps.build-arm-zip.outcome == 'success')
         working-directory: ./logzio-lambda-extensions-logs/bin
         run: |
-          LAYER_VERSION=$(aws lambda publish-layer-version \
-            --layer-name LogzioLambdaExtensionLogsArm \
-            --description "Extension for shipping Lambda logs to Logz.io ${{ github.event.release.tag_name }}, for arm64 architecture.." \
-            --zip-file "fileb://extension.zip" \
-            --region ${{ matrix.aws-region }} \
-            --compatible-runtimes dotnet8 python3.12 provided.al2023 dotnet6 java11 java17 java8.al2 nodejs16.x nodejs18.x python3.10 python3.11 python3.8 python3.9 ruby3.2 provided.al2 \
-            --compatible-architectures arm64 \
-            --output text --query 'Version')
-          echo "Layer Version: $LAYER_VERSION"  # Save the version for next step
-      - name: Grant Public GetLayerVersion Permission
+          ARM_LAYER_VERSION=$(aws lambda publish-layer-version \
+          --layer-name LogzioLambdaExtensionLogsArm \
+          --description "Extension for shipping Lambda logs to Logz.io ${{ github.event.release.tag_name }}, for arm64 architecture.." \
+          --zip-file "fileb://extension.zip" \
+          --region ${{ matrix.aws-region }} \
+          --compatible-runtimes dotnet8 python3.12 provided.al2023 dotnet6 java11 java17 java8.al2 nodejs16.x nodejs18.x python3.10 python3.11 python3.8 python3.9 ruby3.2 provided.al2 \
+          --compatible-architectures arm64 \
+          --output text --query 'Version')
+          echo "ARM_LAYER_VERSION=$ARM_LAYER_VERSION" >> "$GITHUB_OUTPUT" # Save the version for next step
+      - name: Grant Public GetLayerVersion Permission for ARM64
+        if: (steps.setup-aws.outcome == 'success' && steps.publish-arm64.outcome == 'success')
         working-directory: ./logzio-lambda-extensions-logs/bin
         run: |
           aws lambda add-layer-version-permission \
-            --layer-name LogzioLambdaExtensionLogsArm \
-            --version-number ${{ steps.publish.outputs.LAYER_VERSION }} \
-            --statement-id public-access-statement \
-            --principal '*' \
-            --action lambda:GetLayerVersion \
-            --region ${{ matrix.aws-region }}
+          --layer-name LogzioLambdaExtensionLogsArm \
+          --version-number ${{ steps.publish-arm64.outputs.ARM_LAYER_VERSION }} \
+          --statement-id public-access-statement \
+          --principal '*' \
+          --action lambda:GetLayerVersion \
+          --region ${{ matrix.aws-region }}
