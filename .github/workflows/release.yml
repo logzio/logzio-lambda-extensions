@@ -26,7 +26,7 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ matrix.aws-region }}
-      - name: Deploy Layer to AWS region ${{ matrix.aws-region }}
+      - name: Deploy AMD64 Layer to AWS region ${{ matrix.aws-region }}
         working-directory: ./logzio-lambda-extensions-logs/bin
         run: |
           LAYER_VERSION=$(aws lambda publish-layer-version \
@@ -55,7 +55,7 @@ jobs:
         run: |
           LAYER_VERSION=$(aws lambda publish-layer-version \
           --layer-name LogzioLambdaExtensionLogsArm \
-          --description "Extension for shipping Lambda logs to Logz.io ${{ github.event.release.tag_name }}, for arm64 architecture." \
+          --description "Extension for shipping Lambda logs to Logz.io ${{ github.event.release.tag_name }}, for arm64 architecture.." \
           --zip-file "fileb://extension.zip" \
           --region ${{ matrix.aws-region }} \
           --compatible-runtimes dotnet8 python3.12 provided.al2023 dotnet6 java11 java17 java8.al2 nodejs16.x nodejs18.x python3.10 python3.11 python3.8 python3.9 ruby3.2 provided.al2 \
@@ -63,7 +63,7 @@ jobs:
           --output text --query 'Version')
 
           aws lambda add-layer-version-permission \
-          --layer-name LogzioLambdaExtensionLogs \
+          --layer-name LogzioLambdaExtensionLogsArm \
           --version-number $LAYER_VERSION \
           --statement-id public-access-statement \
           --principal '*' \
