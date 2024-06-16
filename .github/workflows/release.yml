@@ -16,6 +16,7 @@ jobs:
         with:
           go-version: 1.22
       - name: Setup AWS
+        id: setup-aws
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -23,11 +24,12 @@ jobs:
           aws-region: ${{ matrix.aws-region }}
       # AMD Build
       - name: Build AMD ZIP File
+        id: build-amd-zip
         working-directory: ./logzio-lambda-extensions-logs
         run: ./build-zip.sh
       - name: Publish AMD64 Layer Version
+        if: (steps.setup-aws.outcome == 'success' && steps.build-amd-zip.outcome == 'success')
         id: publish-amd64
-        needs: ["Build AMD ZIP File", "Setup AWS"]
         working-directory: ./logzio-lambda-extensions-logs/bin
         run: |
           AMD_LAYER_VERSION=$(aws lambda publish-layer-version \
@@ -41,7 +43,7 @@ jobs:
           echo "AMD_LAYER_VERSION=$AMD_LAYER_VERSION" >> "$GITHUB_OUTPUT" # Save the version for next step
 
       - name: Grant Public GetLayerVersion Permission for AMD64
-        needs: ["Publish AMD64 Layer Version"]
+        if: (steps.setup-aws.outcome == 'success' && steps.publish-amd64.outcome == 'success')
         working-directory: ./logzio-lambda-extensions-logs/bin
         run: |
           aws lambda add-layer-version-permission \
@@ -54,11 +56,12 @@ jobs:
 
       # ARM Build
       - name: Build ARM ZIP File
+        id: build-arm-zip
         working-directory: ./logzio-lambda-extensions-logs
         run: chmod +x ./build-arm-zip.sh
       - name: Publish ARM64 Layer Version
         id: publish-arm64
-        needs: ["Build ARM ZIP File", "Setup AWS"]
+        if: (steps.setup-aws.outcome == 'success' && steps.build-arm-zip.outcome == 'success')
         working-directory: ./logzio-lambda-extensions-logs/bin
         run: |
           ARM_LAYER_VERSION=$(aws lambda publish-layer-version \
@@ -70,8 +73,8 @@ jobs:
           --compatible-architectures arm64 \
           --output text --query 'Version')
           echo "ARM_LAYER_VERSION=$ARM_LAYER_VERSION" >> "$GITHUB_OUTPUT" # Save the version for next step
-      - name: Grant Public GetLayerVersion Permission
-        needs: ["Publish ARM64 Layer Version"]
+      - name: Grant Public GetLayerVersion Permission for ARM64
+        if: (steps.setup-aws.outcome == 'success' && steps.publish-arm64.outcome == 'success')
         working-directory: ./logzio-lambda-extensions-logs/bin
         run: |
           aws lambda add-layer-version-permission \
