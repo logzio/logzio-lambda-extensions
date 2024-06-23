@@ -282,6 +282,8 @@ foo: bar
 **NOTE:** If your AWS region is not in the list, please reach out to Logz.io's support or open an issue in this repo.
 
 ### Changelog:
+- **0.3.5**:
+  - Fix ARM layer release
 - **0.3.4**:
   - Fix missing Lambda layer policy in release.
 - **0.3.3**:
