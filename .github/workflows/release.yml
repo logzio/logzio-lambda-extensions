@@ -26,7 +26,9 @@ jobs:
       - name: Build AMD ZIP File
         id: build-amd-zip
         working-directory: ./logzio-lambda-extensions-logs
-        run: ./build-zip.sh
+        run: |
+          chmod +x ./build-zip.sh
+          ./build-zip.sh
       - name: Publish AMD64 Layer Version
         if: (steps.setup-aws.outcome == 'success' && steps.build-amd-zip.outcome == 'success')
         id: publish-amd64
@@ -58,7 +60,9 @@ jobs:
       - name: Build ARM ZIP File
         id: build-arm-zip
         working-directory: ./logzio-lambda-extensions-logs
-        run: chmod +x ./build-arm-zip.sh
+        run: |
+          chmod +x ./build-arm-zip.sh
+          ./build-arm-zip.sh
       - name: Publish ARM64 Layer Version
         id: publish-arm64
         if: (steps.setup-aws.outcome == 'success' && steps.build-arm-zip.outcome == 'success')
