@@ -127,6 +127,7 @@ func main() {
 			return
 		case <-eventChannel:
 			logger.Info(printPrefix, "Received SHUTDOWN event")
+			logsApiLogger.Drain()
 			logsApiAgent.Shutdown()
 			logger.Info(printPrefix, "Exiting")
 			return
