@@ -122,11 +122,13 @@ func main() {
 		select {
 		case <-ctx.Done():
 			logger.Info(printPrefix, "Received context done event")
+			logsApiLogger.Drain()
 			logsApiAgent.Shutdown()
 			logger.Info(printPrefix, "Exiting")
 			return
 		case <-eventChannel:
 			logger.Info(printPrefix, "Received SHUTDOWN event")
+			logsApiLogger.Drain()
 			logsApiAgent.Shutdown()
 			logger.Info(printPrefix, "Exiting")
 			return
