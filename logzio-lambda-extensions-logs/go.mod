@@ -4,7 +4,7 @@ go 1.22
 
 require (
 	github.com/golang-collections/go-datastructures v0.0.0-20150211160725-59788d5eb259
-	github.com/logzio/logzio-go v1.0.7
+	github.com/logzio/logzio-go v1.0.8
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.9.0

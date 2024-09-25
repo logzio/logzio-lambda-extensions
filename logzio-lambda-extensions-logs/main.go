@@ -16,6 +16,7 @@ import (
 	"path"
 	"strings"
 	"syscall"
+	"time"
 )
 
 // INITIAL_QUEUE_SIZE is the initial size set for the synchronous logQueue
@@ -122,13 +123,13 @@ func main() {
 		select {
 		case <-ctx.Done():
 			logger.Info(printPrefix, "Received context done event")
-			logsApiLogger.Drain()
+			logsApiLogger.AwaitDrain(time.Millisecond * 1800)
 			logsApiAgent.Shutdown()
 			logger.Info(printPrefix, "Exiting")
 			return
 		case <-eventChannel:
 			logger.Info(printPrefix, "Received SHUTDOWN event")
-			logsApiLogger.Drain()
+			logsApiLogger.AwaitDrain(time.Millisecond * 1800)
 			logsApiAgent.Shutdown()
 			logger.Info(printPrefix, "Exiting")
 			return
