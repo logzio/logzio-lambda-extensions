@@ -7,7 +7,7 @@ require (
 	github.com/logzio/logzio-go v1.0.8
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	github.com/vjeantet/grok v1.0.1
 )
 
