@@ -26,28 +26,16 @@ func NewLogzioLogger() (*logzio.LogzioSender, error) {
 	if err != nil {
 		return nil, err
 	}
-	logLevel := utils.GetExtensionLogLevel()
-	var logzioLogger *logzio.LogzioSender
-	if logLevel == utils.LogLevelDebug {
-		logzioLogger, err = logzio.New(
-			token,
-			logzio.SetUrl(listener),
-			logzio.SetInMemoryQueue(true),
-			logzio.SetDebug(os.Stdout),
-			logzio.SetinMemoryCapacity(maxBulkSizeBytes), //bytes
-			logzio.SetDrainDuration(time.Second*5),
-			logzio.SetDebug(os.Stdout),
-		)
-	} else {
-		logzioLogger, err = logzio.New(
-			token,
-			logzio.SetUrl(listener),
-			logzio.SetInMemoryQueue(true),
-			logzio.SetDebug(os.Stdout),
-			logzio.SetinMemoryCapacity(maxBulkSizeBytes), //bytes
-			logzio.SetDrainDuration(time.Second*5),
-		)
+	opts := []logzio.SenderOptionFunc{
+		logzio.SetUrl(listener),
+		logzio.SetInMemoryQueue(true),
+		logzio.SetinMemoryCapacity(maxBulkSizeBytes),
+		logzio.SetDrainDuration(time.Second * 5),
 	}
+	if utils.GetExtensionLogLevel() == utils.LogLevelDebug {
+		opts = append(opts, logzio.SetDebug(os.Stdout))
+	}
+	logzioLogger, err := logzio.New(token, opts...)
 
 	if err != nil {
 		return nil, err

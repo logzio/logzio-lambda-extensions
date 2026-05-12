@@ -279,6 +279,14 @@ foo: bar
 **NOTE:** If your AWS region is not in the list, please reach out to Logz.io's support or open an issue in this repo.
 
 ### Changelog:
+- **0.3.9**:
+  - Performance improvements: improve CPU usage.
+    - Fixed event loop to reduce CPU consumption.
+    - Disabled debug output on the Logz.io sender when not in debug mode.
+    - Removed verbose stdout logging of every log batch in the HTTP handler.
+    - Cached grok patterns and environment variables at startup.
+- **0.3.8**:
+  - Removed dependency on system-level libraries (glibc)
 - **0.3.7**:
   - Change `SHUTDOWN` event flush to synchronous.
 - **0.3.6**:

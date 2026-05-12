@@ -76,7 +76,7 @@ func (h *LogsApiHttpListener) http_handler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	fmt.Println("Logs API event received:", string(body))
+	logger.Debugf("Logs API event received: %s", string(body))
 
 	// Puts the log message into the queue
 	err = h.logQueue.Put(string(body))
