@@ -47,6 +47,9 @@ func main() {
 		panic(err)
 	}
 
+	// Initialize cached configuration (env vars, grok patterns)
+	utils.InitConfig()
+
 	// Create Logzio Logger
 	logsApiLogger, err := agent.NewLogzioLogger()
 	if err != nil {
@@ -57,30 +60,27 @@ func main() {
 	// and process the logs from main goroutine (consumer)
 	logQueue := queue.New(INITIAL_QUEUE_SIZE)
 	// Helper function to empty the log queue
-	var logsStr string = ""
 	go func() {
 		for {
-			if !logQueue.Empty() {
-				logs, err := logQueue.Get(1)
-				if err != nil {
-					logger.Error(printPrefix, err)
-					return
-				}
+			logs, err := logQueue.Get(1)
+			if err != nil {
+				logger.Error(printPrefix, err)
+				return
+			}
 
-				logsStr = fmt.Sprintf("%v", logs[0])
-				batch, err := processBatch(logsStr, logger)
-				if err != nil {
-					logger.Error(printPrefix, err)
-					return
-				}
+			logsStr := logs[0].(string)
+			batch, err := processBatch(logsStr, logger)
+			if err != nil {
+				logger.Error(printPrefix, err)
+				return
+			}
 
-				logger.Debugf("About to write to sender: %s", batch)
-				_, err = logsApiLogger.Write([]byte(batch))
-				logsApiLogger.Drain()
-				if err != nil {
-					logger.Error(printPrefix, err)
-					return
-				}
+			logger.Debugf("About to write to sender: %s", batch)
+			_, err = logsApiLogger.Write([]byte(batch))
+			logsApiLogger.Drain()
+			if err != nil {
+				logger.Error(printPrefix, err)
+				return
 			}
 		}
 	}()
@@ -119,23 +119,19 @@ func main() {
 		}
 	}()
 	// Will block until invoke or shutdown event is received or cancelled via the context.
-	for {
-		select {
-		case <-ctx.Done():
-			logger.Info(printPrefix, "Received context done event")
-			logsApiLogger.AwaitDrain(time.Millisecond * 1800)
-			logsApiAgent.Shutdown()
-			logger.Info(printPrefix, "Exiting")
-			return
-		case <-eventChannel:
-			logger.Info(printPrefix, "Received SHUTDOWN event")
-			logsApiLogger.AwaitDrain(time.Millisecond * 1800)
-			logsApiAgent.Shutdown()
-			logger.Info(printPrefix, "Exiting")
-			return
-		default:
-			continue
-		}
+	select {
+	case <-ctx.Done():
+		logger.Info(printPrefix, "Received context done event")
+		logsApiLogger.AwaitDrain(time.Millisecond * 1800)
+		logsApiAgent.Shutdown()
+		logger.Info(printPrefix, "Exiting")
+		return
+	case <-eventChannel:
+		logger.Info(printPrefix, "Received SHUTDOWN event")
+		logsApiLogger.AwaitDrain(time.Millisecond * 1800)
+		logsApiAgent.Shutdown()
+		logger.Info(printPrefix, "Exiting")
+		return
 	}
 }
 

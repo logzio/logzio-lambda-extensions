@@ -24,6 +24,52 @@ const (
 	grokKeyLogFormat = "LOG_FORMAT"
 )
 
+// Cached configuration values, initialized once via InitConfig().
+var (
+	cachedGrok           *grok.Grok
+	cachedGrokErr        error
+	grokEnabled          bool
+	cachedLambdaName     string
+	cachedAwsRegion      string
+	cachedCustomFields   map[string]string
+	cachedJsonUnderRoot  bool
+)
+
+// InitConfig reads environment variables and compiles the grok instance once.
+// Must be called from main() before processing any logs.
+func InitConfig() {
+	cachedLambdaName = GetAwsLambdaFunctionName()
+	cachedAwsRegion = GetAwsRegion()
+	cachedCustomFields = GetCustomFields()
+	cachedJsonUnderRoot = GetJsonFieldsUnderRoot()
+
+	grokPattern := GetGrokPatterns()
+	logsFormat := GetLogsFormat()
+	if len(grokPattern) > 0 && len(logsFormat) > 0 {
+		g, err := grok.NewWithConfig(&grok.Config{NamedCapturesOnly: true})
+		if err != nil {
+			cachedGrokErr = err
+			return
+		}
+
+		err = addGrokPatterns(g, grokPattern, logsFormat)
+		if err != nil {
+			cachedGrokErr = err
+			return
+		}
+
+		cachedGrok = g
+		grokEnabled = true
+	} else {
+		if len(grokPattern) > 0 || len(logsFormat) > 0 {
+			logger.Error("grok pattern and logs format must be set in order to parse fields. sending log as string.")
+		}
+		grokEnabled = false
+	}
+	cachedGrokErr = nil
+}
+
+
 // ConvertLambdaLogToLogzioLog converts a log that was sent from AWS Logs API to a log in a Logz.io format
 func ConvertLambdaLogToLogzioLog(lambdaLog map[string]interface{}) map[string]interface{} {
 	sendAsString := false
@@ -36,22 +82,14 @@ func ConvertLambdaLogToLogzioLog(lambdaLog map[string]interface{}) map[string]in
 
 	switch lambdaLog[FldLambdaRecord].(type) {
 	case string:
-		grokPattern := GetGrokPatterns()
-		logsFormat := GetLogsFormat()
-		if len(grokPattern) > 0 && len(logsFormat) > 0 {
-			logger.Debugf("grok pattern: %s", grokPattern)
-			logger.Debugf("logs format: %s", logsFormat)
+		if grokEnabled {
 			logger.Info("detected grok pattern and logs format. trying to parse log")
-			err := parseFields(logzioLog, lambdaLog[FldLambdaRecord].(string), grokPattern, logsFormat)
+			err := parseFields(logzioLog, lambdaLog[FldLambdaRecord].(string))
 			if err != nil {
 				logger.Errorf("error occurred while trying to parse fields. sedning log as a string: %s", err.Error())
 				sendAsString = true
 			}
 		} else {
-			if len(grokPattern) > 0 || len(logsFormat) > 0 {
-				logger.Error("grok pattern and logs format must be set in order to parse fields. sending log as string.")
-			}
-
 			sendAsString = true
 		}
 
@@ -63,7 +101,7 @@ func ConvertLambdaLogToLogzioLog(lambdaLog map[string]interface{}) map[string]in
 				logzioLog[FldLogzioMsg] = lambdaLog[FldLambdaRecord]
 			} else {
 				logger.Debugf("detected JSON: %s", lambdaLog[FldLambdaRecord])
-				if GetJsonFieldsUnderRoot() {
+				if cachedJsonUnderRoot {
 					if len(nested) > 0 {
 						for key, val := range nested {
 							logzioLog[key] = val
@@ -82,19 +120,16 @@ func ConvertLambdaLogToLogzioLog(lambdaLog map[string]interface{}) map[string]in
 	return logzioLog
 }
 
-func parseFields(logMap map[string]interface{}, fieldsToParse, grokPatterns, logsFormat string) error {
-	g, err := grok.NewWithConfig(&grok.Config{NamedCapturesOnly: true})
-	if err != nil {
-		return err
+func parseFields(logMap map[string]interface{}, fieldsToParse string) error {
+	if cachedGrokErr != nil {
+		return cachedGrokErr
 	}
-
-	err = addGrokPatterns(g, grokPatterns, logsFormat)
-	if err != nil {
-		return err
+	if cachedGrok == nil {
+		return fmt.Errorf("grok not initialized")
 	}
 
 	logger.Debugf("about to parse: %s", fieldsToParse)
-	fields, err := g.Parse(fmt.Sprintf(`%%{%s}`, grokKeyLogFormat), fmt.Sprintf(`%s`, fieldsToParse))
+	fields, err := cachedGrok.Parse(fmt.Sprintf(`%%{%s}`, grokKeyLogFormat), fieldsToParse)
 	logger.Debugf("number of fields after grok: %d", len(fields))
 	if err != nil {
 		return err
@@ -156,30 +191,27 @@ func addFields(logsMap map[string]interface{}, fields map[string]string) {
 }
 
 func addAwsMetadata(logzioLog map[string]interface{}) {
-	lambdaName := GetAwsLambdaFunctionName()
-	if len(lambdaName) > 0 {
-		logzioLog[FldLogzioLambdaName] = lambdaName
+	if len(cachedLambdaName) > 0 {
+		logzioLog[FldLogzioLambdaName] = cachedLambdaName
 	} else {
 		logger.Warning("could not get AWS Lambda function name. The field will not appear in the log")
 	}
 
-	awsRegion := GetAwsRegion()
-	if len(awsRegion) > 0 {
-		logzioLog[FldLogzioAwsRegion] = awsRegion
+	if len(cachedAwsRegion) > 0 {
+		logzioLog[FldLogzioAwsRegion] = cachedAwsRegion
 	} else {
 		logger.Warning("could not get AWS region. The field will not appear in the log")
 	}
 }
 
 func addCustomFields(logzioLog map[string]interface{}) {
-	customFields := GetCustomFields()
-	if len(customFields) > 0 {
+	if len(cachedCustomFields) > 0 {
 		logKeys := make([]string, len(logzioLog))
 		for k := range logzioLog {
 			logKeys = append(logKeys, k)
 		}
 
-		for key, val := range customFields {
+		for key, val := range cachedCustomFields {
 			// Making sure that the custom fields don't override an existing field.
 			// If it exists - custom field will be ignored.
 			if !contains(logKeys, key) {

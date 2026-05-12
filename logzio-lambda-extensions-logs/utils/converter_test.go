@@ -7,7 +7,18 @@ import (
 	"testing"
 )
 
+func clearTestEnv() {
+	os.Unsetenv("GROK_PATTERNS")
+	os.Unsetenv("LOGS_FORMAT")
+	os.Unsetenv("CUSTOM_FIELDS")
+	os.Unsetenv("JSON_FIELDS_UNDER_ROOT")
+	os.Unsetenv("AWS_LAMBDA_FUNCTION_NAME")
+	os.Unsetenv("AWS_REGION")
+}
+
 func TestConverterSimpleLog(t *testing.T) {
+	clearTestEnv()
+	utils.InitConfig()
 	lambdaLog := map[string]interface{}{
 		utils.FldLambdaTime:   "2021-11-11T08:28:16.870Z",
 		utils.FldLambdaType:   "function",
@@ -23,6 +34,8 @@ func TestConverterSimpleLog(t *testing.T) {
 }
 
 func TestConverterSimpleJsonLog(t *testing.T) {
+	clearTestEnv()
+	utils.InitConfig()
 	lambdaLog := map[string]interface{}{
 		utils.FldLambdaTime:   "2021-11-11T08:28:16.870Z",
 		utils.FldLambdaType:   "function",
@@ -38,7 +51,9 @@ func TestConverterSimpleJsonLog(t *testing.T) {
 }
 
 func TestConverterSimpleJsonLogAndJsonFieldsUnderRoot(t *testing.T) {
+	clearTestEnv()
 	os.Setenv("JSON_FIELDS_UNDER_ROOT", "true")
+	utils.InitConfig()
 	lambdaLog := map[string]interface{}{
 		utils.FldLambdaTime:   "2021-11-11T08:28:16.870Z",
 		utils.FldLambdaType:   "function",
@@ -55,8 +70,10 @@ func TestConverterSimpleJsonLogAndJsonFieldsUnderRoot(t *testing.T) {
 }
 
 func TestConverterGrokFormattedLog(t *testing.T) {
+	clearTestEnv()
 	os.Setenv("GROK_PATTERNS", "{\"app_name\":\"cool app\",\"my_message\":\".*\"}")
 	os.Setenv("LOGS_FORMAT", "%{app_name:my_app} : %{my_message:my_message}")
+	utils.InitConfig()
 	lambdaLog := map[string]interface{}{
 		utils.FldLambdaTime:   "2021-11-11T08:28:16.870Z",
 		utils.FldLambdaType:   "function",
@@ -73,8 +90,10 @@ func TestConverterGrokFormattedLog(t *testing.T) {
 }
 
 func TestConverterGrokFormattedLogWithJson(t *testing.T) {
+	clearTestEnv()
 	os.Setenv("GROK_PATTERNS", "{\"app_name\":\"cool app\",\"my_message\":\".*\"}")
 	os.Setenv("LOGS_FORMAT", "%{app_name:my_app} : %{my_message:my_message}")
+	utils.InitConfig()
 	lambdaLog := map[string]interface{}{
 		utils.FldLambdaTime:   "2021-11-11T08:28:16.870Z",
 		utils.FldLambdaType:   "function",
@@ -91,8 +110,10 @@ func TestConverterGrokFormattedLogWithJson(t *testing.T) {
 }
 
 func TestConverterGrokFormattedLogIncorrectLogsFormat(t *testing.T) {
+	clearTestEnv()
 	os.Setenv("GROK_PATTERNS", "{\"app_name\":\"cool app\",\"my_message\":\".*\"}")
 	os.Setenv("LOGS_FORMAT", "%{app_name:my_app} = %{my_message:my_message}")
+	utils.InitConfig()
 	lambdaLog := map[string]interface{}{
 		utils.FldLambdaTime:   "2021-11-11T08:28:16.870Z",
 		utils.FldLambdaType:   "function",
@@ -111,8 +132,10 @@ func TestConverterGrokFormattedLogIncorrectLogsFormat(t *testing.T) {
 }
 
 func TestConverterGrokFormattedLogIncorrectGrokPattern(t *testing.T) {
+	clearTestEnv()
 	os.Setenv("GROK_PATTERNS", "{\"app_name\":\"some app\",\"my_message\":\".*\"}")
 	os.Setenv("LOGS_FORMAT", "%{app_name:my_app} : %{my_message:my_message}")
+	utils.InitConfig()
 	lambdaLog := map[string]interface{}{
 		utils.FldLambdaTime:   "2021-11-11T08:28:16.870Z",
 		utils.FldLambdaType:   "function",
@@ -131,7 +154,9 @@ func TestConverterGrokFormattedLogIncorrectGrokPattern(t *testing.T) {
 }
 
 func TestConverterGrokFormattedLogNoGrokPattern(t *testing.T) {
+	clearTestEnv()
 	os.Setenv("LOGS_FORMAT", "%{app_name:my_app} : %{my_message:my_message}")
+	utils.InitConfig()
 	lambdaLog := map[string]interface{}{
 		utils.FldLambdaTime:   "2021-11-11T08:28:16.870Z",
 		utils.FldLambdaType:   "function",
@@ -150,7 +175,9 @@ func TestConverterGrokFormattedLogNoGrokPattern(t *testing.T) {
 }
 
 func TestConverterGrokFormattedLogNoLogsFormat(t *testing.T) {
-	os.Setenv("LOGS_FORMAT", "%{app_name:my_app} : %{my_message:my_message}")
+	clearTestEnv()
+	os.Setenv("GROK_PATTERNS", "{\"app_name\":\"cool app\",\"my_message\":\".*\"}")
+	utils.InitConfig()
 	lambdaLog := map[string]interface{}{
 		utils.FldLambdaTime:   "2021-11-11T08:28:16.870Z",
 		utils.FldLambdaType:   "function",
@@ -169,10 +196,12 @@ func TestConverterGrokFormattedLogNoLogsFormat(t *testing.T) {
 }
 
 func TestConverterAddAwsMetadata(t *testing.T) {
+	clearTestEnv()
 	lambdaName := "my lambda"
 	region := "us-east-1"
 	os.Setenv("AWS_LAMBDA_FUNCTION_NAME", lambdaName)
 	os.Setenv("AWS_REGION", region)
+	utils.InitConfig()
 	lambdaLog := map[string]interface{}{
 		utils.FldLambdaTime:   "2021-11-11T08:28:16.870Z",
 		utils.FldLambdaType:   "function",
@@ -187,8 +216,10 @@ func TestConverterAddAwsMetadata(t *testing.T) {
 }
 
 func TestConverterCustomFields(t *testing.T) {
+	clearTestEnv()
 	custom := "hello=world,hola=mundo"
 	os.Setenv("CUSTOM_FIELDS", custom)
+	utils.InitConfig()
 	lambdaLog := map[string]interface{}{
 		utils.FldLambdaTime:   "2021-11-11T08:28:16.870Z",
 		utils.FldLambdaType:   "function",
@@ -203,8 +234,10 @@ func TestConverterCustomFields(t *testing.T) {
 }
 
 func TestConverterCustomFieldsKeyExistInLog(t *testing.T) {
+	clearTestEnv()
 	custom := "my_message=world,hola=mundo"
 	os.Setenv("CUSTOM_FIELDS", custom)
+	utils.InitConfig()
 	lambdaLog := map[string]interface{}{
 		utils.FldLambdaTime:   "2021-11-11T08:28:16.870Z",
 		utils.FldLambdaType:   "function",
